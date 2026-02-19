@@ -1,6 +1,6 @@
 {
   "expo": {
-    "owner": "REPLACE_WITH_EXPO_USERNAME",
+    "owner": "trelarson",
     "name": "Dreamcatcher",
     "slug": "dreamcatcher",
     "version": "1.0.0",
@@ -11,7 +11,7 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "REPLACE_WITH_YOUR_BUNDLE_ID",
+      "bundleIdentifier": "com.trelarson.dreamwright",
       "buildNumber": "1"
     },
     "android": {
@@ -23,7 +23,7 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "REPLACE_WITH_YOUR_ANDROID_PACKAGE"
+      "package": "com.trelarson.dreamwright"
     },
     "web": {
       "output": "static",
