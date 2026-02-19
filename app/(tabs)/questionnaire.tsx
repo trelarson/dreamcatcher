@@ -1,9 +1,8 @@
-import { auth, db } from "@/config/firebase";
-import { askTheOracle } from "@/services/claude";
+import { auth } from "@/config/firebase";
+import { askTheAdvisor } from "@/services/claude";
 import { saveFortune } from "@/services/firestore";
 import Slider from "@react-native-community/slider";
 import { useRouter } from "expo-router";
-import { doc, getDoc } from "firebase/firestore";
 import LottieView from "lottie-react-native";
 import { useState } from "react";
 import {
@@ -151,7 +150,7 @@ export default function QuestionnaireScreen() {
     setLoading(true);
     try {
       // Separate cacheable format instructions from user data
-      const systemInstructions = `You are the Dreamcatcher oracle. You MUST use EXACTLY this format. No preamble. No extra text. Start immediately with "GREETING:"
+      const systemInstructions = `You are the Dreamwright oracle. You MUST use EXACTLY this format. No preamble. No extra text. Start immediately with "GREETING:"
 
 Copy this structure EXACTLY:
 
@@ -204,7 +203,7 @@ Blockers: ${blockers.join(", ")}
 Generate the three career paths now.`;
 
       // Use Sonnet with cached system prompt for quality + cost savings
-      const response = await askTheOracle(userData, {
+      const response = await askTheAdvisor(userData, {
         useHaiku: false, // Keep Sonnet for creative fortune generation
         systemPrompt: systemInstructions,
         maxTokens: 2048,
@@ -218,7 +217,7 @@ Generate the three career paths now.`;
       Alert.alert(
         "⚙️ The Gears Have Jammed",
         "The oracle's mechanisms encountered a hiccup. Please try consulting the brass machine again.",
-        [{ text: "Restart Divination" }],
+        [{ text: "Restart Discovery" }],
       );
     } finally {
       setLoading(false);
@@ -510,7 +509,7 @@ Generate the three career paths now.`;
       if (hasParsedPaths) {
         return (
           <View>
-            <Text style={styles.title}>⚙️ Your Fortune ⚙️</Text>
+            <Text style={styles.title}>⚙️ Your Path ⚙️</Text>
 
             {parsedFortune.greeting && (
               <View style={styles.greetingCard}>
@@ -588,53 +587,19 @@ Generate the three career paths now.`;
 
                 <Pressable
                   style={styles.choosePathButton}
-                  onPress={async () => {
-                    try {
-                      const pathParams = {
-                        title: path.title,
-                        why: path.why,
-                        steps: path.steps.join("|||"),
-                        timeline: path.timeline,
-                      };
+                  onPress={() => {
+                    const pathParams = {
+                      title: path.title,
+                      why: path.why,
+                      steps: path.steps.join("|||"),
+                      timeline: path.timeline,
+                    };
 
-                      if (!auth.currentUser) {
-                        router.push({
-                          pathname: "/paywall",
-                          params: pathParams,
-                        });
-                        return;
-                      }
-
-                      // Check subscription status in Firestore
-                      const subDoc = await getDoc(
-                        doc(db, "subscriptions", auth.currentUser.uid),
-                      );
-
-                      if (subDoc.exists() && subDoc.data().active === true) {
-                        // User is subscribed - go to action plan
-                        router.push({
-                          pathname: "/action-plan",
-                          params: pathParams,
-                        });
-                      } else {
-                        // Not subscribed - show paywall WITH params
-                        router.push({
-                          pathname: "/paywall",
-                          params: pathParams,
-                        });
-                      }
-                    } catch (error) {
-                      // On error, still pass params
-                      router.push({
-                        pathname: "/paywall",
-                        params: {
-                          title: path.title,
-                          why: path.why,
-                          steps: path.steps.join("|||"),
-                          timeline: path.timeline,
-                        },
-                      });
-                    }
+                    // Go directly to choice screen for testing
+                    router.push({
+                      pathname: "/career-path-choice",
+                      params: pathParams,
+                    });
                   }}
                 >
                   <Text style={styles.choosePathText}>Choose This Path →</Text>
@@ -672,7 +637,7 @@ Generate the three career paths now.`;
                 setBlockers([]);
               }}
             >
-              <Text style={styles.buttonText}>Start New Divination</Text>
+              <Text style={styles.buttonText}>Start New Discovery</Text>
             </Pressable>
 
             <Pressable style={styles.backButton} onPress={() => router.back()}>
@@ -683,7 +648,7 @@ Generate the three career paths now.`;
       } else {
         return (
           <View>
-            <Text style={styles.title}>⚙️ Your Fortune ⚙️</Text>
+            <Text style={styles.title}>⚙️ Your Path ⚙️</Text>
 
             <View style={styles.fortuneCard}>
               <Text style={styles.fortuneText}>{fortune}</Text>
@@ -719,7 +684,7 @@ Generate the three career paths now.`;
                 setBlockers([]);
               }}
             >
-              <Text style={styles.buttonText}>Start New Divination</Text>
+              <Text style={styles.buttonText}>Start New Discovery</Text>
             </Pressable>
 
             <Pressable style={styles.backButton} onPress={() => router.back()}>
@@ -737,7 +702,7 @@ Generate the three career paths now.`;
     return (
       <View style={styles.container}>
         <View style={styles.contentContainer}>
-          <Text style={styles.title}>⚙️ The Oracle Awaits ⚙️</Text>
+          <Text style={styles.title}>⚙️ The Advisor Awaits ⚙️</Text>
           <Text style={styles.subtitle}>
             Sign in to save your fortunes and track your progress
           </Text>
@@ -794,7 +759,7 @@ Generate the three career paths now.`;
         <Text style={styles.progressText}>
           {currentStep < 6
             ? `Question ${currentStep + 1} of 6`
-            : "Your Fortune"}
+            : "Your Path"}
         </Text>
         <View style={styles.progressBar}>
           <View

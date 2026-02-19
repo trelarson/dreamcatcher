@@ -43,7 +43,7 @@ export default function PaywallScreen() {
 
       Alert.alert(
         "⚙️ The Vault Opens!",
-        "You now have full access to the Dreamcatcher oracle. Your action plans await.",
+        "You now have full access to the Dreamwright oracle. Your action plans await.",
         [
           {
             text: "Continue",
@@ -78,7 +78,7 @@ export default function PaywallScreen() {
         <Text style={styles.closeButtonText}>✕</Text>
       </Pressable>
 
-      <Text style={styles.title}>⚙️ Unlock the Mechanisms ⚙️</Text>
+      <Text style={styles.title}>⚙️ Unlock Your Path ⚙️</Text>
       <Text style={styles.subtitle}>
         The oracle has revealed your paths.{"\n"}
         Now unlock the power to walk them.
@@ -120,65 +120,26 @@ export default function PaywallScreen() {
         ))}
       </View>
 
-      {/* Pricing Cards */}
-      <Text style={styles.pricingLabel}>Choose Your Plan:</Text>
+      {/* Pricing Card */}
+      <Text style={styles.pricingLabel}>Early Access Pricing:</Text>
 
       <Pressable
         style={[styles.pricingCard, styles.pricingCardHighlighted]}
         onPress={() => handlePurchase("annual")}
         disabled={loading}
       >
-        {/* Decorative corners */}
-        <View style={styles.cornerTopLeft}>
-          <Text style={styles.cornerText}>╔═</Text>
-        </View>
-        <View style={styles.cornerTopRight}>
-          <Text style={styles.cornerText}>═╗</Text>
-        </View>
-        <View style={styles.cornerBottomLeft}>
-          <Text style={styles.cornerText}>╚═</Text>
-        </View>
-        <View style={styles.cornerBottomRight}>
-          <Text style={styles.cornerText}>═╝</Text>
-        </View>
-
         <View style={styles.popularBadge}>
-          <Text style={styles.popularBadgeText}>⭐ BEST VALUE</Text>
+          <Text style={styles.popularBadgeText}>⭐ EARLY ACCESS</Text>
         </View>
-        <Text style={styles.pricingPeriod}>Annual</Text>
+        <Text style={styles.pricingPeriod}>Annual Plan</Text>
         <Text style={styles.pricingPrice}>
-          $8.33<Text style={styles.pricingPeriodSmall}>/mo</Text>
+          $0.99<Text style={styles.pricingPeriodSmall}>/year</Text>
         </Text>
-        <Text style={styles.pricingTotal}>$99.99/year - Save 17%</Text>
+        <Text style={styles.pricingTotal}>Full Access • Cancel Anytime</Text>
+        <Text style={styles.testNote}>Test pricing for early users only</Text>
       </Pressable>
 
-      <Pressable
-        style={styles.pricingCard}
-        onPress={() => handlePurchase("monthly")}
-        disabled={loading}
-      >
-        {/* Decorative corners */}
-        <View style={styles.cornerTopLeft}>
-          <Text style={styles.cornerText}>╔═</Text>
-        </View>
-        <View style={styles.cornerTopRight}>
-          <Text style={styles.cornerText}>═╗</Text>
-        </View>
-        <View style={styles.cornerBottomLeft}>
-          <Text style={styles.cornerText}>╚═</Text>
-        </View>
-        <View style={styles.cornerBottomRight}>
-          <Text style={styles.cornerText}>═╝</Text>
-        </View>
-
-        <Text style={styles.pricingPeriod}>Monthly</Text>
-        <Text style={styles.pricingPrice}>
-          $9.99<Text style={styles.pricingPeriodSmall}>/mo</Text>
-        </Text>
-        <Text style={styles.pricingTotal}>Cancel anytime</Text>
-      </Pressable>
-
-      {/* Oracle Wisdom */}
+      {/* Advisor Wisdom */}
       <View style={styles.wisdomCard}>
         <Text style={styles.wisdomText}>
           The brass gears turn for those who dare to act.{"\n"}
@@ -390,5 +351,12 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: "#B8860B",
     fontWeight: "bold",
+  },
+  testNote: {
+    fontSize: 12,
+    fontFamily: "CrimsonText-Italic",
+    color: "#8B5A3C",
+    textAlign: "center",
+    marginTop: 8,
   },
 });

@@ -45,6 +45,10 @@ export default function RootLayout() {
         <Stack.Screen name="paywall" options={{ headerShown: false }} />
         <Stack.Screen name="fortune-viewer" options={{ headerShown: false }} />
         <Stack.Screen name="fortune-paths" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="career-path-choice"
+          options={{ headerShown: false }}
+        />
       </Stack>
       <StatusBar style="auto" />
     </ThemeProvider>

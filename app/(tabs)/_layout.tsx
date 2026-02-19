@@ -35,8 +35,8 @@ export default function TabLayout() {
       <Tabs.Screen
         name="questionnaire"
         options={{
-          title: "Divination",
-          tabBarIcon: () => <Text style={{ fontSize: 28 }}>🔮</Text>,
+          title: "Discovery",
+          tabBarIcon: () => <Text style={{ fontSize: 28 }}>⚙️</Text>,
         }}
       />
       <Tabs.Screen
