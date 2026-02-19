@@ -1,31 +1,8 @@
-import { askTheOracle } from "@/services/claude";
 import { useRouter } from "expo-router";
-import { useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 export default function HomeScreen() {
   const router = useRouter();
-  const [testing, setTesting] = useState(false);
-  const [result, setResult] = useState("");
-
-  console.log("API Key exists:", !!process.env.EXPO_PUBLIC_ANTHROPIC_API_KEY);
-  console.log(
-    "API Key starts with sk-ant:",
-    process.env.EXPO_PUBLIC_ANTHROPIC_API_KEY?.startsWith("sk-ant"),
-  );
-
-  const testClaude = async () => {
-    setTesting(true);
-    try {
-      const response = await askTheOracle(
-        "Say hello in a mystical, theatrical way as the Dreamcatcher oracle.",
-      );
-      setResult(response);
-    } catch (error) {
-      setResult("Error: " + error);
-    }
-    setTesting(false);
-  };
 
   return (
     <View style={styles.container}>
@@ -43,7 +20,6 @@ export default function HomeScreen() {
       <Pressable
         style={styles.button}
         onPress={() => router.push("/(tabs)/questionnaire")}
-        disabled={testing}
       >
         <Text style={styles.buttonText}>Begin Divination</Text>
       </Pressable>
@@ -97,7 +73,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
-    elevation: 8, // Android shadow
+    elevation: 8,
   },
   buttonText: {
     fontSize: 18,
@@ -110,19 +86,5 @@ const styles = StyleSheet.create({
     fontFamily: "CrimsonText-Italic",
     color: "#C0C0C0",
     textAlign: "center",
-  },
-  resultBox: {
-    backgroundColor: "#FDF6E3",
-    padding: 15,
-    borderRadius: 8,
-    marginTop: 20,
-    borderWidth: 2,
-    borderColor: "#B8860B",
-  },
-  resultText: {
-    fontSize: 14,
-    fontFamily: "CrimsonText-Regular",
-    color: "#1B4D5C",
-    lineHeight: 20,
   },
 });

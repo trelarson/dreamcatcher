@@ -590,27 +590,6 @@ const styles = StyleSheet.create({
     fontFamily: "CrimsonText-Regular",
     color: "#8B5A3C",
   },
-  progressIndicator: {
-    marginTop: 8,
-    marginBottom: 4,
-  },
-  progressBarSmall: {
-    height: 6,
-    backgroundColor: "#E8E8E8",
-    borderRadius: 3,
-    overflow: "hidden",
-    marginBottom: 4,
-  },
-  progressFillSmall: {
-    height: "100%",
-    backgroundColor: "#D4AF37",
-    borderRadius: 3,
-  },
-  progressText: {
-    fontSize: 11,
-    fontFamily: "CrimsonText-Regular",
-    color: "#8B5A3C",
-  },
   pathTitle: {
     fontSize: 16,
     fontWeight: "bold",

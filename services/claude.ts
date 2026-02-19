@@ -1,3 +1,6 @@
+// WARNING: This key is bundled client-side via EXPO_PUBLIC_. Before production
+// launch, move Claude API calls to a Firebase Cloud Function or similar backend
+// so the key is never shipped inside the app binary.
 const ANTHROPIC_API_KEY = process.env.EXPO_PUBLIC_ANTHROPIC_API_KEY;
 const CLAUDE_API_URL = "https://api.anthropic.com/v1/messages";
 
@@ -13,10 +16,9 @@ export async function askTheOracle(
 ): Promise<string> {
   const { useHaiku = false, systemPrompt, maxTokens = 4096 } = options;
 
-  // Choose model based on task complexity
   const model = useHaiku
-    ? "claude-3-haiku-20240307" // Haiku 3 (definitely available)
-    : "claude-sonnet-4-20250514"; // Sonnet 4 - high quality
+    ? "claude-haiku-4-5-20251001"
+    : "claude-sonnet-4-5-20250929";
 
   try {
     const body: any = {
