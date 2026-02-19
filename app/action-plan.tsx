@@ -1,6 +1,10 @@
 import { auth } from "@/config/firebase";
 import { askTheOracle } from "@/services/claude";
-import { saveActionPlan, updateActionPlan } from "@/services/firestore";
+import {
+  getActionPlanById,
+  saveActionPlan,
+  updateActionPlan,
+} from "@/services/firestore";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import LottieView from "lottie-react-native";
 import { useEffect, useState } from "react";
@@ -14,18 +18,6 @@ import {
   View,
 } from "react-native";
 
-interface Task {
-  id: string;
-  description: string;
-  completed: boolean;
-}
-
-interface Milestone {
-  id: string;
-  title: string;
-  timeline: string;
-  tasks: Task[];
-}
 interface Resource {
   type: "course" | "article" | "tool" | "community" | "person";
   title: string;
@@ -60,15 +52,36 @@ export default function ActionPlanScreen() {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    generateActionPlan();
+    if (params.planId) {
+      loadSavedPlan(params.planId as string);
+    } else {
+      generateActionPlan();
+    }
   }, []);
 
-  const generateActionPlan = async () => {
-    console.log("=== STARTING ACTION PLAN GENERATION ===");
-    console.log("Params received:", params);
+  const loadSavedPlan = async (id: string) => {
     setLoading(true);
     try {
-      // Get path details from params
+      const plan = await getActionPlanById(id);
+      if (plan) {
+        setPathTitle(plan.pathTitle);
+        setMilestones(plan.milestones as Milestone[]);
+        setPlanId(id);
+      } else {
+        throw new Error("Plan not found");
+      }
+    } catch (error: any) {
+      Alert.alert("Error", "Could not load your saved plan: " + error.message, [
+        { text: "Go Back", onPress: () => router.back() },
+      ]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const generateActionPlan = async () => {
+    setLoading(true);
+    try {
       const title = params.title as string;
       const why = params.why as string;
       const steps = params.steps as string;
@@ -131,36 +144,20 @@ TIMELINE: ${timeline}
 
 Generate the complete plan with 5-7 milestones now.`;
 
-      console.log("=== SENDING PROMPT TO CLAUDE ===");
-      console.log("User data length:", userData.length);
-
-      // Use Haiku with cached system prompt (70% cheaper + cache savings)
       const response = await askTheOracle(userData, {
         useHaiku: true,
         systemPrompt: systemInstructions,
         maxTokens: 4096,
       });
 
-      console.log("=== CLAUDE RESPONSE RECEIVED ===");
-      console.log("Response length:", response.length);
-      console.log("First 500 chars:", response.substring(0, 500));
-
       const parsedMilestones = parseActionPlan(response);
 
-      console.log("=== PARSING COMPLETE ===");
-      console.log("Milestones found:", parsedMilestones.length);
-
       if (parsedMilestones.length === 0) {
-        console.log("=== PARSING FAILED - NO MILESTONES ===");
-        console.log("Full response:", response);
         throw new Error("Could not parse action plan");
       }
 
       setMilestones(parsedMilestones);
     } catch (error: any) {
-      console.error("=== ACTION PLAN ERROR ===");
-      console.error("Error message:", error.message);
-      console.error("Full error:", error);
       Alert.alert(
         "⚙️ The Mechanisms Stalled",
         "The oracle struggled to forge your path. The brass gears need realignment.",
@@ -169,7 +166,6 @@ Generate the complete plan with 5-7 milestones now.`;
           { text: "Try Again", onPress: () => generateActionPlan() },
         ],
       );
-      router.back();
     } finally {
       setLoading(false);
     }
@@ -325,6 +321,7 @@ Generate the complete plan with 5-7 milestones now.`;
           pathTitle,
           pathWhy: params.why as string,
           pathTimeline: params.timeline as string,
+          fortuneId: (params.fortuneId as string) || undefined,
           milestones: cleanMilestones,
         });
         setPlanId(newPlanId);
@@ -825,20 +822,6 @@ const styles = StyleSheet.create({
     width: 200,
     height: 200,
     marginBottom: 20,
-  },
-  loadingContainer: {
-    flex: 1,
-    backgroundColor: "#1B4D5C",
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 40,
-  },
-  loadingText: {
-    fontSize: 18,
-    fontFamily: "CrimsonText-Italic",
-    color: "#FDF6E3",
-    textAlign: "center",
-    lineHeight: 28,
   },
   cornerTopLeft: {
     position: "absolute",

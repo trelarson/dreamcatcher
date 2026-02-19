@@ -7,7 +7,26 @@ export default function FortunePathsScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
 
-  const paths = JSON.parse(params.paths as string);
+  let paths: any[] = [];
+  try {
+    paths = JSON.parse(params.paths as string);
+  } catch {
+    return (
+      <View style={styles.container}>
+        <Pressable style={styles.backButton} onPress={() => router.back()}>
+          <Text style={styles.backButtonText}>← Back to Vault</Text>
+        </Pressable>
+        <Text style={[styles.title, { marginTop: 60 }]}>
+          ⚙️ Could Not Load Fortune
+        </Text>
+        <Text style={styles.greetingText}>
+          The brass gears encountered corrupted data. Please return and try
+          again.
+        </Text>
+      </View>
+    );
+  }
+
   const greeting = params.greeting as string;
   const closing = params.closing as string;
 
@@ -18,6 +37,7 @@ export default function FortunePathsScreen() {
         why: path.why,
         steps: path.steps.join("|||"),
         timeline: path.timeline,
+        fortuneId: (params.fortuneId as string) || "",
       };
 
       if (!auth.currentUser) {
@@ -54,6 +74,7 @@ export default function FortunePathsScreen() {
           why: path.why,
           steps: path.steps.join("|||"),
           timeline: path.timeline,
+          fortuneId: (params.fortuneId as string) || "",
         },
       });
     }

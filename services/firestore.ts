@@ -3,6 +3,7 @@ import {
   addDoc,
   collection,
   doc,
+  getDoc,
   getDocs,
   orderBy,
   query,
@@ -69,7 +70,7 @@ export async function getUserFortunes(): Promise<SavedFortune[]> {
 export interface SavedActionPlan {
   id?: string;
   userId: string;
-  fortuneId?: string; // ADD THIS LINE
+  fortuneId?: string;
   pathTitle: string;
   pathWhy: string;
   pathTimeline: string;
@@ -151,6 +152,25 @@ export async function updateActionPlan(planId: string, milestones: any[]) {
     milestones,
     lastUpdatedAt: Timestamp.now(),
   });
+}
+
+export async function getActionPlanById(
+  planId: string,
+): Promise<SavedActionPlan | null> {
+  const user = auth.currentUser;
+  if (!user) {
+    throw new Error("Must be signed in");
+  }
+
+  const planRef = doc(db, "actionPlans", planId);
+  const snap = await getDoc(planRef);
+
+  if (!snap.exists()) return null;
+
+  const data = snap.data();
+  if (data.userId !== user.uid) throw new Error("Unauthorized");
+
+  return { id: snap.id, ...data } as SavedActionPlan;
 }
 
 export async function getUserActionPlans(): Promise<SavedActionPlan[]> {
