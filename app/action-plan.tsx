@@ -90,7 +90,7 @@ export default function ActionPlanScreen() {
       setPathTitle(title);
 
       // Split prompt into cacheable system instructions and user data
-      const systemInstructions = `You are the Dreamcatcher oracle creating a detailed, actionable plan.
+      const systemInstructions = `You are the Dreamwright oracle creating a detailed, actionable plan.
 
 Create a detailed action plan with 5-7 milestones. For EACH task, include 2-3 REAL, SPECIFIC resources with clickable links.
 
