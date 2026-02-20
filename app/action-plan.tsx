@@ -374,6 +374,8 @@ Generate the complete plan with 5-7 milestones now.`;
             router.push("/(tabs)/questionnaire");
           }
         }}
+        accessibilityRole="button"
+        accessibilityLabel="Back to Fortune"
       >
         <Text style={styles.backButtonText}>← Back to Fortune</Text>
       </Pressable>
@@ -399,6 +401,8 @@ Generate the complete plan with 5-7 milestones now.`;
         style={[styles.saveButton, saving && styles.buttonDisabled]}
         onPress={handleSaveProgress}
         disabled={saving}
+        accessibilityRole="button"
+        accessibilityLabel={planId ? "Update Progress" : "Save Action Plan"}
       >
         <Text style={styles.saveButtonText}>
           {saving
@@ -449,6 +453,9 @@ Generate the complete plan with 5-7 milestones now.`;
                   <Pressable
                     style={styles.taskRow}
                     onPress={() => toggleTask(milestone.id, task.id)}
+                    accessibilityRole="checkbox"
+                    accessibilityLabel={task.description}
+                    accessibilityState={{ checked: task.completed }}
                   >
                     <View style={styles.checkbox}>
                       {task.completed && (
@@ -481,6 +488,8 @@ Generate the complete plan with 5-7 milestones now.`;
                               Alert.alert("Error", "Could not open link");
                             });
                           }}
+                          accessibilityRole="link"
+                          accessibilityLabel={`Open ${resource.title}`}
                         >
                           <Text style={styles.resourceIcon}>
                             {resource.type === "course"

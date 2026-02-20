@@ -20,6 +20,8 @@ export default function HomeScreen() {
       <Pressable
         style={styles.button}
         onPress={() => router.push("/(tabs)/questionnaire")}
+        accessibilityRole="button"
+        accessibilityLabel="Begin Divination"
       >
         <Text style={styles.buttonText}>Begin Divination</Text>
       </Pressable>

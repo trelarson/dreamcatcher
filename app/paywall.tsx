@@ -71,7 +71,12 @@ export default function PaywallScreen() {
       style={styles.container}
       contentContainerStyle={styles.contentContainer}
     >
-      <Pressable style={styles.closeButton} onPress={() => router.back()}>
+      <Pressable
+        style={styles.closeButton}
+        onPress={() => router.back()}
+        accessibilityRole="button"
+        accessibilityLabel="Close"
+      >
         <Text style={styles.closeButtonText}>✕</Text>
       </Pressable>
 
@@ -124,6 +129,8 @@ export default function PaywallScreen() {
         style={[styles.pricingCard, styles.pricingCardHighlighted]}
         onPress={handlePurchase}
         disabled={loading}
+        accessibilityRole="button"
+        accessibilityLabel="Purchase Annual Plan for $0.99 per year"
       >
         <View style={styles.popularBadge}>
           <Text style={styles.popularBadgeText}>⭐ EARLY ACCESS</Text>
@@ -145,7 +152,12 @@ export default function PaywallScreen() {
         </Text>
       </View>
 
-      <Pressable onPress={handleRestore} disabled={loading}>
+      <Pressable
+        onPress={handleRestore}
+        disabled={loading}
+        accessibilityRole="button"
+        accessibilityLabel="Restore Previous Purchase"
+      >
         <Text style={styles.restoreLink}>Restore Previous Purchase</Text>
       </Pressable>
 

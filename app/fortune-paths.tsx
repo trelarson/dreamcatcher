@@ -12,7 +12,12 @@ export default function FortunePathsScreen() {
   } catch {
     return (
       <View style={styles.container}>
-        <Pressable style={styles.backButton} onPress={() => router.back()}>
+        <Pressable
+          style={styles.backButton}
+          onPress={() => router.back()}
+          accessibilityRole="button"
+          accessibilityLabel="Back to Vault"
+        >
           <Text style={styles.backButtonText}>← Back to Vault</Text>
         </Pressable>
         <Text style={[styles.title, { marginTop: 60 }]}>
@@ -134,6 +139,8 @@ export default function FortunePathsScreen() {
           <Pressable
             style={styles.choosePathButton}
             onPress={() => handlePathSelect(path)}
+            accessibilityRole="button"
+            accessibilityLabel={`Get action plan for ${path.title}`}
           >
             <Text style={styles.choosePathText}>Get Action Plan →</Text>
           </Pressable>
