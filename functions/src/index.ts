@@ -1,7 +1,8 @@
 import Anthropic from "@anthropic-ai/sdk";
+import { defineSecret } from "firebase-functions/params";
 import { HttpsError, onCall } from "firebase-functions/v2/https";
 
-const client = new Anthropic(); // Reads ANTHROPIC_API_KEY from Functions environment
+const anthropicApiKey = defineSecret("ANTHROPIC_API_KEY");
 
 interface OracleRequest {
   userMessage: string;
@@ -10,7 +11,7 @@ interface OracleRequest {
   maxTokens?: number;
 }
 
-export const askOracle = onCall(async (request) => {
+export const askOracle = onCall({ secrets: [anthropicApiKey] }, async (request) => {
   // Require Firebase auth (email/password or anonymous — both are accepted)
   if (!request.auth) {
     throw new HttpsError(
@@ -25,6 +26,8 @@ export const askOracle = onCall(async (request) => {
   if (!userMessage) {
     throw new HttpsError("invalid-argument", "userMessage is required.");
   }
+
+  const client = new Anthropic({ apiKey: anthropicApiKey.value() });
 
   const model = useHaiku
     ? "claude-haiku-4-5-20251001"
