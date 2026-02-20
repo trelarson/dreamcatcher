@@ -1,5 +1,6 @@
 import { auth } from "@/config/firebase";
 import { askTheAdvisor } from "@/services/claude";
+import { signInAnonymously } from "firebase/auth";
 import { saveFortune } from "@/services/firestore";
 import Slider from "@react-native-community/slider";
 import { useRouter } from "expo-router";
@@ -149,6 +150,13 @@ export default function QuestionnaireScreen() {
   const generateFortune = async () => {
     setLoading(true);
     try {
+      // Ensure a Firebase auth session exists before calling the Cloud Function.
+      // Anonymous sign-in gives the user a temporary session without requiring
+      // account creation. If they later sign up, the account can be linked.
+      if (!auth.currentUser) {
+        await signInAnonymously(auth);
+      }
+
       // Separate cacheable format instructions from user data
       const systemInstructions = `You are the Dreamwright oracle. You MUST use EXACTLY this format. No preamble. No extra text. Start immediately with "GREETING:"
 
