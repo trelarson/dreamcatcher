@@ -394,11 +394,19 @@ export default function ProfileScreen() {
       </View>
 
       <View style={styles.legalRow}>
-        <Pressable onPress={() => Linking.openURL(PRIVACY_URL)}>
+        <Pressable
+          onPress={() => Linking.openURL(PRIVACY_URL)}
+          accessibilityRole="link"
+          accessibilityLabel="Open Privacy Policy"
+        >
           <Text style={styles.legalLink}>Privacy Policy</Text>
         </Pressable>
         <Text style={styles.legalSeparator}> · </Text>
-        <Pressable onPress={() => Linking.openURL(SUPPORT_URL)}>
+        <Pressable
+          onPress={() => Linking.openURL(SUPPORT_URL)}
+          accessibilityRole="link"
+          accessibilityLabel="Open Support page"
+        >
           <Text style={styles.legalLink}>Support</Text>
         </Pressable>
       </View>
@@ -503,26 +511,6 @@ const styles = StyleSheet.create({
     color: "#1B4D5C",
     textDecorationLine: "underline",
   },
-  signInText: {
-    fontSize: 16,
-    fontWeight: "bold",
-    fontFamily: "Cinzel-Bold",
-    color: "#1B4D5C",
-  },
-  signInButton: {
-    backgroundColor: "#D4AF37",
-    padding: 15,
-    borderRadius: 8,
-    alignItems: "center",
-    marginBottom: 10,
-    borderWidth: 2,
-    borderColor: "#B8860B",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 8,
-  },
   signOutButton: {
     backgroundColor: "#8B5A3C",
     padding: 15,
@@ -596,26 +584,6 @@ const styles = StyleSheet.create({
   backToQuestionnaireText: {
     fontSize: 16,
     color: "#C0C0C0",
-  },
-  authButton: {
-    backgroundColor: "#D4AF37",
-    padding: 18,
-    borderRadius: 8,
-    alignItems: "center",
-    marginBottom: 20,
-    borderWidth: 3,
-    borderColor: "#B8860B",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 8,
-  },
-  aauthButtonText: {
-    fontSize: 18,
-    fontWeight: "bold",
-    fontFamily: "Cinzel-Bold",
-    color: "#1B4D5C",
   },
   progressIndicator: {
     marginTop: 8,
