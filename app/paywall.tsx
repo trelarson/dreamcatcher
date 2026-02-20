@@ -1,4 +1,3 @@
-import { auth, db } from "@/config/firebase";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
 import {
@@ -10,60 +9,58 @@ import {
   View,
 } from "react-native";
 
-import { doc, setDoc } from "firebase/firestore";
+import { purchaseAnnualPlan, restorePurchases } from "@/services/purchases";
 
 export default function PaywallScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const [loading, setLoading] = useState(false);
 
-  // For MVP: simulate purchase by saving to Firestore
-  // Replace with real payment (RevenueCat/Stripe) before launch
-  const handlePurchase = async (plan: "monthly" | "annual") => {
-    if (!auth.currentUser) {
-      Alert.alert("Sign In Required", "Please sign in to purchase", [
-        { text: "Cancel", style: "cancel" },
-        { text: "Go to Profile", onPress: () => router.push("/profile") },
-      ]);
-      return;
+  const onPurchaseSuccess = () => {
+    if (params.title) {
+      router.replace({ pathname: "/action-plan", params });
+    } else {
+      router.back();
     }
+  };
 
+  const handlePurchase = async () => {
     setLoading(true);
     try {
-      // Save subscription status to Firestore
-      await setDoc(doc(db, "subscriptions", auth.currentUser.uid), {
-        tier: plan === "annual" ? "annual" : "monthly",
-        active: true,
-        purchasedAt: new Date().toISOString(),
-        // For MVP testing - set expiry far in future
-        expiresAt: new Date(
-          Date.now() + 365 * 24 * 60 * 60 * 1000,
-        ).toISOString(),
-      });
-
-      Alert.alert(
-        "⚙️ The Vault Opens!",
-        "You now have full access to the Dreamwright oracle. Your action plans await.",
-        [
-          {
-            text: "Continue",
-            onPress: () => {
-              // If we have path params, go directly to action plan
-              if (params.title) {
-                router.replace({
-                  pathname: "/action-plan",
-                  params: params,
-                });
-              } else {
-                // Otherwise just go back
-                router.back();
-              }
-            },
-          },
-        ],
-      );
+      const granted = await purchaseAnnualPlan();
+      if (granted) {
+        Alert.alert(
+          "⚙️ The Vault Opens!",
+          "You now have full access to the Dreamwright oracle. Your action plans await.",
+          [{ text: "Continue", onPress: onPurchaseSuccess }],
+        );
+      }
     } catch (error: any) {
-      Alert.alert("Error", "Purchase failed: " + error.message);
+      Alert.alert(
+        "Purchase Failed",
+        error?.message ?? "Something went wrong. Please try again.",
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRestore = async () => {
+    setLoading(true);
+    try {
+      const granted = await restorePurchases();
+      if (granted) {
+        Alert.alert("⚙️ Restored!", "Your subscription has been restored.", [
+          { text: "Continue", onPress: onPurchaseSuccess },
+        ]);
+      } else {
+        Alert.alert(
+          "No Purchase Found",
+          "We couldn't find a previous purchase linked to your account.",
+        );
+      }
+    } catch (error: any) {
+      Alert.alert("Restore Failed", error?.message ?? "Please try again.");
     } finally {
       setLoading(false);
     }
@@ -125,7 +122,7 @@ export default function PaywallScreen() {
 
       <Pressable
         style={[styles.pricingCard, styles.pricingCardHighlighted]}
-        onPress={() => handlePurchase("annual")}
+        onPress={handlePurchase}
         disabled={loading}
       >
         <View style={styles.popularBadge}>
@@ -136,7 +133,6 @@ export default function PaywallScreen() {
           $0.99<Text style={styles.pricingPeriodSmall}>/year</Text>
         </Text>
         <Text style={styles.pricingTotal}>Full Access • Cancel Anytime</Text>
-        <Text style={styles.testNote}>Test pricing for early users only</Text>
       </Pressable>
 
       {/* Advisor Wisdom */}
@@ -148,6 +144,10 @@ export default function PaywallScreen() {
           Will you unlock yours?
         </Text>
       </View>
+
+      <Pressable onPress={handleRestore} disabled={loading}>
+        <Text style={styles.restoreLink}>Restore Previous Purchase</Text>
+      </Pressable>
 
       <Text style={styles.footer}>
         Cancel or manage your subscription anytime in your device settings.
@@ -321,42 +321,18 @@ const styles = StyleSheet.create({
     textAlign: "center",
     lineHeight: 22,
   },
+  restoreLink: {
+    fontSize: 13,
+    fontFamily: "CrimsonText-Regular",
+    color: "#C0C0C0",
+    textAlign: "center",
+    textDecorationLine: "underline",
+    marginBottom: 12,
+  },
   footer: {
     fontSize: 12,
     fontFamily: "CrimsonText-Regular",
     color: "#8B8B8B",
     textAlign: "center",
-  },
-  cornerTopLeft: {
-    position: "absolute",
-    top: 8,
-    left: 8,
-  },
-  cornerTopRight: {
-    position: "absolute",
-    top: 8,
-    right: 8,
-  },
-  cornerBottomLeft: {
-    position: "absolute",
-    bottom: 8,
-    left: 8,
-  },
-  cornerBottomRight: {
-    position: "absolute",
-    bottom: 8,
-    right: 8,
-  },
-  cornerText: {
-    fontSize: 20,
-    color: "#B8860B",
-    fontWeight: "bold",
-  },
-  testNote: {
-    fontSize: 12,
-    fontFamily: "CrimsonText-Italic",
-    color: "#8B5A3C",
-    textAlign: "center",
-    marginTop: 8,
   },
 });

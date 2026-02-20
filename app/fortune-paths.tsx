@@ -1,6 +1,5 @@
-import { auth, db } from "@/config/firebase";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { doc, getDoc } from "firebase/firestore";
+import { checkEntitlement } from "@/services/purchases";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
 export default function FortunePathsScreen() {
@@ -40,31 +39,11 @@ export default function FortunePathsScreen() {
         fortuneId: (params.fortuneId as string) || "",
       };
 
-      if (!auth.currentUser) {
-        router.push({
-          pathname: "/paywall",
-          params: pathParams,
-        });
-        return;
-      }
-
-      // Check subscription status
-      const subDoc = await getDoc(
-        doc(db, "subscriptions", auth.currentUser.uid),
-      );
-
-      if (subDoc.exists() && subDoc.data().active === true) {
-        // User is subscribed - go to action plan
-        router.push({
-          pathname: "/action-plan",
-          params: pathParams,
-        });
+      const hasPremium = await checkEntitlement();
+      if (hasPremium) {
+        router.push({ pathname: "/action-plan", params: pathParams });
       } else {
-        // Not subscribed - show paywall
-        router.push({
-          pathname: "/paywall",
-          params: pathParams,
-        });
+        router.push({ pathname: "/paywall", params: pathParams });
       }
     } catch (error) {
       router.push({

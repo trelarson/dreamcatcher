@@ -11,9 +11,13 @@ import "react-native-reanimated";
 
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { useFonts } from "../hooks/useFonts";
+import { initializePurchases } from "@/services/purchases";
 
 // Keep splash screen visible while fonts load
 SplashScreen.preventAutoHideAsync();
+
+// Initialize RevenueCat once at app startup
+initializePurchases();
 
 export const unstable_settings = {
   anchor: "(tabs)",
