@@ -7,10 +7,6 @@ export default function CareerPathChoiceScreen() {
   const params = useLocalSearchParams();
 
   const handleChoice = (pathType: "new" | "pivot") => {
-    console.log("=== PATH TYPE SELECTED ===");
-    console.log("Choice:", pathType);
-    console.log("Params:", params);
-
     // Navigate to action plan with the path type
     router.push({
       pathname: "/action-plan",
@@ -34,7 +30,12 @@ export default function CareerPathChoiceScreen() {
         <Text style={styles.cornerText}>⚙</Text>
       </View>
 
-      <Pressable style={styles.backButton} onPress={() => router.back()}>
+      <Pressable
+        style={styles.backButton}
+        onPress={() => router.back()}
+        accessibilityRole="button"
+        accessibilityLabel="Go back"
+      >
         <Text style={styles.backButtonText}>← Back</Text>
       </Pressable>
 
@@ -50,6 +51,8 @@ export default function CareerPathChoiceScreen() {
         <Pressable
           style={styles.choiceCard}
           onPress={() => handleChoice("new")}
+          accessibilityRole="button"
+          accessibilityLabel="Forge a New Path — start fresh in a new career"
         >
           <View style={styles.choiceHeader}>
             <Text style={styles.choiceEmoji}>🌟</Text>
@@ -86,6 +89,8 @@ export default function CareerPathChoiceScreen() {
         <Pressable
           style={styles.choiceCard}
           onPress={() => handleChoice("pivot")}
+          accessibilityRole="button"
+          accessibilityLabel="Pivot From Where You Stand — leverage existing skills"
         >
           <View style={styles.choiceHeader}>
             <Text style={styles.choiceEmoji}>🔄</Text>
