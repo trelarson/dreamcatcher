@@ -6,7 +6,7 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>🎪 Dreamcatcher 🎪</Text>
+      <Text style={styles.title}>🎪 Dreamwright 🎪</Text>
       <Text style={styles.subtitle}>The Brass Oracle Awaits</Text>
 
       <Text style={styles.description}>
@@ -20,6 +20,8 @@ export default function HomeScreen() {
       <Pressable
         style={styles.button}
         onPress={() => router.push("/(tabs)/questionnaire")}
+        accessibilityRole="button"
+        accessibilityLabel="Begin Divination"
       >
         <Text style={styles.buttonText}>Begin Divination</Text>
       </Pressable>

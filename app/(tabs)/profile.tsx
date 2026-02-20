@@ -16,6 +16,7 @@ import {
 import { useCallback, useEffect, useState } from "react";
 import {
   Alert,
+  Linking,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -23,6 +24,10 @@ import {
   TextInput,
   View,
 } from "react-native";
+
+const PRIVACY_URL =
+  "https://trelarson.github.io/dreamwright-support/privacy-policy.html";
+const SUPPORT_URL = "https://trelarson.github.io/dreamwright-support";
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -156,6 +161,8 @@ export default function ProfileScreen() {
                 <Pressable
                   key={fortune.id}
                   style={styles.fortuneItem}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Fortune from ${fortune.createdAt?.toDate().toLocaleDateString() ?? "unknown date"}`}
                   onPress={() => {
                     // Check if we have parsed paths
                     if (
@@ -235,6 +242,8 @@ export default function ProfileScreen() {
                   <Pressable
                     key={plan.id}
                     style={styles.fortuneItem}
+                    accessibilityRole="button"
+                    accessibilityLabel={`${plan.pathTitle} action plan`}
                     onPress={() => {
                       router.push({
                         pathname: "/action-plan",
@@ -273,15 +282,40 @@ export default function ProfileScreen() {
         <Pressable
           style={styles.backToQuestionnaire}
           onPress={() => router.push("/(tabs)/questionnaire")}
+          accessibilityRole="button"
+          accessibilityLabel="Back to Fortune Parlor"
         >
           <Text style={styles.backToQuestionnaireText}>
             ← Back to Fortune Parlor
           </Text>
         </Pressable>
 
-        <Pressable style={styles.signOutButton} onPress={handleSignOut}>
+        <Pressable
+          style={styles.signOutButton}
+          onPress={handleSignOut}
+          accessibilityRole="button"
+          accessibilityLabel="Sign Out"
+        >
           <Text style={styles.signOutText}>Sign Out</Text>
         </Pressable>
+
+        <View style={styles.legalRow}>
+          <Pressable
+            onPress={() => Linking.openURL(PRIVACY_URL)}
+            accessibilityRole="link"
+            accessibilityLabel="Open Privacy Policy"
+          >
+            <Text style={styles.legalLink}>Privacy Policy</Text>
+          </Pressable>
+          <Text style={styles.legalSeparator}> · </Text>
+          <Pressable
+            onPress={() => Linking.openURL(SUPPORT_URL)}
+            accessibilityRole="link"
+            accessibilityLabel="Open Support page"
+          >
+            <Text style={styles.legalLink}>Support</Text>
+          </Pressable>
+        </View>
       </ScrollView>
     );
   }
@@ -326,6 +360,8 @@ export default function ProfileScreen() {
           style={[styles.button, loading && styles.buttonDisabled]}
           onPress={handleAuth}
           disabled={loading}
+          accessibilityRole="button"
+          accessibilityLabel={isSignUp ? "Create Account" : "Sign In"}
         >
           <Text style={styles.buttonText}>
             {loading
@@ -339,6 +375,8 @@ export default function ProfileScreen() {
         <Pressable
           style={styles.switchButton}
           onPress={() => setIsSignUp(!isSignUp)}
+          accessibilityRole="button"
+          accessibilityLabel={isSignUp ? "Already have an account? Switch to Sign In" : "Need an account? Switch to Sign Up"}
         >
           <Text style={styles.switchText}>
             {isSignUp
@@ -353,6 +391,24 @@ export default function ProfileScreen() {
           Your fortunes are precious.{"\n"}
           The oracle keeps them safe for your return.
         </Text>
+      </View>
+
+      <View style={styles.legalRow}>
+        <Pressable
+          onPress={() => Linking.openURL(PRIVACY_URL)}
+          accessibilityRole="link"
+          accessibilityLabel="Open Privacy Policy"
+        >
+          <Text style={styles.legalLink}>Privacy Policy</Text>
+        </Pressable>
+        <Text style={styles.legalSeparator}> · </Text>
+        <Pressable
+          onPress={() => Linking.openURL(SUPPORT_URL)}
+          accessibilityRole="link"
+          accessibilityLabel="Open Support page"
+        >
+          <Text style={styles.legalLink}>Support</Text>
+        </Pressable>
       </View>
     </ScrollView>
   );
@@ -455,26 +511,6 @@ const styles = StyleSheet.create({
     color: "#1B4D5C",
     textDecorationLine: "underline",
   },
-  signInText: {
-    fontSize: 16,
-    fontWeight: "bold",
-    fontFamily: "Cinzel-Bold",
-    color: "#1B4D5C",
-  },
-  signInButton: {
-    backgroundColor: "#D4AF37",
-    padding: 15,
-    borderRadius: 8,
-    alignItems: "center",
-    marginBottom: 10,
-    borderWidth: 2,
-    borderColor: "#B8860B",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 8,
-  },
   signOutButton: {
     backgroundColor: "#8B5A3C",
     padding: 15,
@@ -549,26 +585,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#C0C0C0",
   },
-  authButton: {
-    backgroundColor: "#D4AF37",
-    padding: 18,
-    borderRadius: 8,
-    alignItems: "center",
-    marginBottom: 20,
-    borderWidth: 3,
-    borderColor: "#B8860B",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 8,
-  },
-  aauthButtonText: {
-    fontSize: 18,
-    fontWeight: "bold",
-    fontFamily: "Cinzel-Bold",
-    color: "#1B4D5C",
-  },
   progressIndicator: {
     marginTop: 8,
     marginBottom: 4,
@@ -596,5 +612,22 @@ const styles = StyleSheet.create({
     fontFamily: "PlayfairDisplay-Bold",
     color: "#1B4D5C",
     marginBottom: 4,
+  },
+  legalRow: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 4,
+    marginBottom: 20,
+  },
+  legalLink: {
+    fontSize: 12,
+    fontFamily: "CrimsonText-Regular",
+    color: "#C0C0C0",
+    textDecorationLine: "underline",
+  },
+  legalSeparator: {
+    fontSize: 12,
+    color: "#C0C0C0",
   },
 });

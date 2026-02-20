@@ -1,5 +1,6 @@
 import { auth } from "@/config/firebase";
 import { askTheAdvisor } from "@/services/claude";
+import { signInAnonymously } from "firebase/auth";
 import { saveFortune } from "@/services/firestore";
 import Slider from "@react-native-community/slider";
 import { useRouter } from "expo-router";
@@ -149,6 +150,13 @@ export default function QuestionnaireScreen() {
   const generateFortune = async () => {
     setLoading(true);
     try {
+      // Ensure a Firebase auth session exists before calling the Cloud Function.
+      // Anonymous sign-in gives the user a temporary session without requiring
+      // account creation. If they later sign up, the account can be linked.
+      if (!auth.currentUser) {
+        await signInAnonymously(auth);
+      }
+
       // Separate cacheable format instructions from user data
       const systemInstructions = `You are the Dreamwright oracle. You MUST use EXACTLY this format. No preamble. No extra text. Start immediately with "GREETING:"
 
@@ -225,10 +233,6 @@ Generate the three career paths now.`;
   };
 
   const handleSaveFortune = async () => {
-    console.log("=== SAVE FORTUNE BUTTON PRESSED ===");
-    console.log("Current user:", auth.currentUser?.email);
-    console.log("Fortune text length:", fortune?.length);
-
     if (!auth.currentUser) {
       Alert.alert("Sign In Required", "Please sign in to save your fortune", [
         { text: "Cancel", style: "cancel" },
@@ -239,7 +243,6 @@ Generate the three career paths now.`;
 
     setSaving(true);
     try {
-      console.log("Attempting to save fortune...");
       await saveFortune({
         conformityScale,
         lifeStage,
@@ -250,7 +253,6 @@ Generate the three career paths now.`;
         fortuneText: fortune,
         parsedFortune,
       });
-      console.log("Fortune saved successfully!");
       Alert.alert(
         "Success!",
         "Your fortune has been saved to your brass vault.",
@@ -341,6 +343,9 @@ Generate the three career paths now.`;
                   lifeStage === option.value && styles.optionButtonSelected,
                 ]}
                 onPress={() => setLifeStage(option.value as LifeStage)}
+                accessibilityRole="radio"
+                accessibilityLabel={option.label}
+                accessibilityState={{ selected: lifeStage === option.value }}
               >
                 <Text
                   style={[
@@ -477,6 +482,9 @@ Generate the three career paths now.`;
                   blockers.includes(blocker) && styles.blockerButtonSelected,
                 ]}
                 onPress={() => toggleBlocker(blocker)}
+                accessibilityRole="checkbox"
+                accessibilityLabel={blocker}
+                accessibilityState={{ checked: blockers.includes(blocker) }}
               >
                 <Text
                   style={[
@@ -601,6 +609,8 @@ Generate the three career paths now.`;
                       params: pathParams,
                     });
                   }}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Choose path: ${path.title}`}
                 >
                   <Text style={styles.choosePathText}>Choose This Path →</Text>
                 </Pressable>
@@ -617,6 +627,8 @@ Generate the three career paths now.`;
               style={[styles.saveButton, saving && styles.buttonDisabled]}
               onPress={handleSaveFortune}
               disabled={saving}
+              accessibilityRole="button"
+              accessibilityLabel="Save This Fortune"
             >
               <Text style={styles.saveButtonText}>
                 {saving ? "⚙️ Saving..." : "💾 Save This Fortune"}
@@ -636,11 +648,18 @@ Generate the three career paths now.`;
                 setSuccessDefinition("");
                 setBlockers([]);
               }}
+              accessibilityRole="button"
+              accessibilityLabel="Start New Discovery"
             >
               <Text style={styles.buttonText}>Start New Discovery</Text>
             </Pressable>
 
-            <Pressable style={styles.backButton} onPress={() => router.back()}>
+            <Pressable
+              style={styles.backButton}
+              onPress={() => router.back()}
+              accessibilityRole="button"
+              accessibilityLabel="Back to Parlor"
+            >
               <Text style={styles.backButtonText}>← Back to Parlor</Text>
             </Pressable>
           </View>
@@ -665,6 +684,8 @@ Generate the three career paths now.`;
               style={[styles.saveButton, saving && styles.buttonDisabled]}
               onPress={handleSaveFortune}
               disabled={saving}
+              accessibilityRole="button"
+              accessibilityLabel="Save This Fortune"
             >
               <Text style={styles.saveButtonText}>
                 {saving ? "⚙️ Saving..." : "💾 Save This Fortune"}
@@ -683,11 +704,18 @@ Generate the three career paths now.`;
                 setSuccessDefinition("");
                 setBlockers([]);
               }}
+              accessibilityRole="button"
+              accessibilityLabel="Start New Discovery"
             >
               <Text style={styles.buttonText}>Start New Discovery</Text>
             </Pressable>
 
-            <Pressable style={styles.backButton} onPress={() => router.back()}>
+            <Pressable
+              style={styles.backButton}
+              onPress={() => router.back()}
+              accessibilityRole="button"
+              accessibilityLabel="Back to Parlor"
+            >
               <Text style={styles.backButtonText}>← Back to Parlor</Text>
             </Pressable>
           </View>
@@ -711,6 +739,8 @@ Generate the three career paths now.`;
             <Pressable
               style={styles.authButton}
               onPress={() => router.push("/(tabs)/profile")}
+              accessibilityRole="button"
+              accessibilityLabel="Sign In or Sign Up"
             >
               <Text style={styles.authButtonText}>Sign In / Sign Up</Text>
             </Pressable>
@@ -718,6 +748,8 @@ Generate the three career paths now.`;
             <Pressable
               style={styles.continueAnonymousButton}
               onPress={() => setContinueAnonymously(true)}
+              accessibilityRole="button"
+              accessibilityLabel="Continue without signing in — fortunes won't be saved"
             >
               <Text style={styles.continueAnonymousText}>
                 Continue without signing in{"\n"}
@@ -779,6 +811,8 @@ Generate the three career paths now.`;
             <Pressable
               style={styles.navButton}
               onPress={() => setCurrentStep(currentStep - 1)}
+              accessibilityRole="button"
+              accessibilityLabel="Previous question"
             >
               <Text style={styles.navButtonText}>← Back</Text>
             </Pressable>
@@ -794,6 +828,8 @@ Generate the three career paths now.`;
               }
             }}
             disabled={!canProceed()}
+            accessibilityRole="button"
+            accessibilityLabel={currentStep === 5 ? "Reveal My Fortune" : "Next question"}
           >
             <Text style={styles.buttonText}>
               {currentStep === 5 ? "Reveal My Fortune" : "Next →"}
@@ -803,7 +839,12 @@ Generate the three career paths now.`;
       )}
 
       {currentStep === 0 && (
-        <Pressable style={styles.backButton} onPress={() => router.back()}>
+        <Pressable
+          style={styles.backButton}
+          onPress={() => router.back()}
+          accessibilityRole="button"
+          accessibilityLabel="Back to Parlor"
+        >
           <Text style={styles.backButtonText}>← Back to Parlor</Text>
         </Pressable>
       )}
