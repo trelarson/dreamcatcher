@@ -107,8 +107,11 @@ export async function saveActionPlan(
     throw new Error("Must be signed in to save action plan");
   }
 
+  const { fortuneId, ...rest } = planData;
+
   const docRef = await addDoc(collection(db, "actionPlans"), {
-    ...planData,
+    ...rest,
+    ...(fortuneId !== undefined && { fortuneId }),
     userId: user.uid,
     createdAt: Timestamp.now(),
     lastUpdatedAt: Timestamp.now(),
