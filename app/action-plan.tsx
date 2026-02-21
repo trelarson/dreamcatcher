@@ -321,7 +321,7 @@ Generate the complete plan with 5-7 milestones now.`;
           pathTitle,
           pathWhy: params.why as string,
           pathTimeline: params.timeline as string,
-          fortuneId: (params.fortuneId as string) || undefined,
+          ...(params.fortuneId ? { fortuneId: params.fortuneId as string } : {}),
           milestones: cleanMilestones,
         });
         setPlanId(newPlanId);
