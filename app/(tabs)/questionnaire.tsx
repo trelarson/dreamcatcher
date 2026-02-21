@@ -222,6 +222,7 @@ Generate the three career paths now.`;
       setParsedFortune(parsed);
       setCurrentStep(6);
     } catch (error) {
+      console.error("Fortune generation error:", error);
       Alert.alert(
         "⚙️ The Gears Have Jammed",
         "The oracle's mechanisms encountered a hiccup. Please try consulting the brass machine again.",

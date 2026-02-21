@@ -25,7 +25,7 @@ export async function askTheOracle(
     return result.data.text;
   } catch (error) {
     console.error("Oracle malfunction:", error);
-    throw new Error("The brass gears have slipped. Please try again.");
+    throw error;
   }
 }
 
