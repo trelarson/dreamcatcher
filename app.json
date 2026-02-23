@@ -2,7 +2,7 @@
   "expo": {
     "owner": "trelarson",
     "name": "Dreamwright",
-    "slug": "dreamwright",
+    "slug": "dreamcatcher",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -12,7 +12,10 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.trelarson.dreamwright",
-      "buildNumber": "3"
+      "buildNumber": "3",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
