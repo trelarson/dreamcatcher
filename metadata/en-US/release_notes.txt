@@ -1,0 +1,7 @@
+Initial release of Dreamwright — your Victorian steampunk AI career oracle.
+
+• Personalized career path generation powered by Claude AI
+• Three tailored paths: Wild, Bold, and Sensible
+• Milestone-based action plans with real resources
+• Progress tracking with cloud sync
+• $0.99/year Early Access subscription
