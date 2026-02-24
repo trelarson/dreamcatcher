@@ -754,7 +754,7 @@ Generate the three career paths now.`;
             >
               <Text style={styles.continueAnonymousText}>
                 Continue without signing in{"\n"}
-                (fortunes won't be saved)
+                (fortunes won&apos;t be saved)
               </Text>
             </Pressable>
           </View>

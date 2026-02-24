@@ -30,7 +30,7 @@ export default function FortuneViewerScreen() {
       <View style={styles.wisdomCard}>
         <Text style={styles.wisdomText}>
           The brass gears never lie.{"\n"}
-          Trust in the oracle's guidance.
+          Trust in the oracle&apos;s guidance.
         </Text>
       </View>
     </ScrollView>
