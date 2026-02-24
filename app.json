@@ -11,7 +11,7 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.trelarson.dreamwright",
+      "bundleIdentifier": "com.anonymous.dreamcatcher",
       "buildNumber": "3",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
