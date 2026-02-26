@@ -11,7 +11,7 @@ interface OracleRequest {
   maxTokens?: number;
 }
 
-export const askOracle = onCall({ secrets: [anthropicApiKey] }, async (request) => {
+export const askOracle = onCall({ secrets: [anthropicApiKey], timeoutSeconds: 120 }, async (request) => {
   // Require Firebase auth (email/password or anonymous — both are accepted)
   if (!request.auth) {
     throw new HttpsError(
@@ -49,7 +49,24 @@ export const askOracle = onCall({ secrets: [anthropicApiKey] }, async (request) 
     ];
   }
 
-  const response = await client.messages.create(body);
+  let response: Anthropic.Messages.Message | null = null;
+  let lastError: unknown;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      response = await client.messages.create(body);
+      break;
+    } catch (err: any) {
+      lastError = err;
+      const status = err?.status ?? err?.statusCode;
+      // Retry on rate-limit (429) or overload (529) with backoff
+      if ((status === 429 || status === 529) && attempt < 2) {
+        await new Promise((r) => setTimeout(r, (attempt + 1) * 2000));
+        continue;
+      }
+      throw err;
+    }
+  }
+  if (!response) throw lastError;
 
   if (response.usage) {
     console.log("Oracle usage", {

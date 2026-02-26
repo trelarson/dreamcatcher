@@ -9,15 +9,29 @@ import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import "react-native-reanimated";
 
+import { auth } from "@/config/firebase";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { useFonts } from "../hooks/useFonts";
-import { initializePurchases } from "@/services/purchases";
+import {
+  initializePurchases,
+  loginPurchasesUser,
+  logoutPurchasesUser,
+} from "@/services/purchases";
 
 // Keep splash screen visible while fonts load
 SplashScreen.preventAutoHideAsync();
 
 // Initialize RevenueCat once at app startup
 initializePurchases();
+
+// Sync RevenueCat customer identity with Firebase auth state
+auth.onAuthStateChanged((user) => {
+  if (user) {
+    loginPurchasesUser(user.uid);
+  } else {
+    logoutPurchasesUser();
+  }
+});
 
 export const unstable_settings = {
   anchor: "(tabs)",

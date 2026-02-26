@@ -8,6 +8,8 @@ import LottieView from "lottie-react-native";
 import { useState } from "react";
 import {
   Alert,
+  KeyboardAvoidingView,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -226,7 +228,10 @@ Generate the three career paths now.`;
       Alert.alert(
         "⚙️ The Gears Have Jammed",
         "The oracle's mechanisms encountered a hiccup. Please try consulting the brass machine again.",
-        [{ text: "Restart Discovery" }],
+        [
+          { text: "Cancel", style: "cancel" },
+          { text: "Try Again", onPress: generateFortune },
+        ],
       );
     } finally {
       setLoading(false);
@@ -754,7 +759,7 @@ Generate the three career paths now.`;
             >
               <Text style={styles.continueAnonymousText}>
                 Continue without signing in{"\n"}
-                (fortunes won't be saved)
+                (fortunes won&apos;t be saved)
               </Text>
             </Pressable>
           </View>
@@ -784,9 +789,14 @@ Generate the three career paths now.`;
   }
 
   return (
+    <KeyboardAvoidingView
+      style={styles.keyboardAvoidingView}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    >
     <ScrollView
       style={styles.container}
       contentContainerStyle={styles.contentContainer}
+      keyboardShouldPersistTaps="handled"
     >
       <View style={styles.progressContainer}>
         <Text style={styles.progressText}>
@@ -850,10 +860,14 @@ Generate the three career paths now.`;
         </Pressable>
       )}
     </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
+  keyboardAvoidingView: {
+    flex: 1,
+  },
   container: {
     flex: 1,
     backgroundColor: "#1B4D5C",

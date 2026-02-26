@@ -13,6 +13,31 @@ export function initializePurchases() {
   Purchases.configure({ apiKey });
 }
 
+/**
+ * Link the RevenueCat customer to a Firebase user ID.
+ * Call this whenever a Firebase user signs in so purchases are
+ * associated with the account and sync across devices.
+ */
+export async function loginPurchasesUser(firebaseUid: string): Promise<void> {
+  try {
+    await Purchases.logIn(firebaseUid);
+  } catch (error) {
+    console.error("RevenueCat logIn failed:", error);
+  }
+}
+
+/**
+ * Switch RevenueCat back to an anonymous user.
+ * Call this when the Firebase user signs out.
+ */
+export async function logoutPurchasesUser(): Promise<void> {
+  try {
+    await Purchases.logOut();
+  } catch (error) {
+    console.error("RevenueCat logOut failed:", error);
+  }
+}
+
 export async function checkEntitlement(): Promise<boolean> {
   try {
     const customerInfo = await Purchases.getCustomerInfo();

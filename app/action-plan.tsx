@@ -772,6 +772,10 @@ const styles = StyleSheet.create({
   taskContainer: {
     marginBottom: 12,
   },
+  taskRow: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
   resourcesContainer: {
     marginLeft: 30,
     marginTop: 8,
