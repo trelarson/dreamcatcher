@@ -6,7 +6,7 @@ import {
   updateActionPlan,
 } from "@/services/firestore";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import LottieView from "@/components/lottie-view";
+import LottieView from "lottie-react-native";
 import { useEffect, useState } from "react";
 import {
   Alert,
