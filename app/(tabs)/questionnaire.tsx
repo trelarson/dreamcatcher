@@ -4,7 +4,7 @@ import { signInAnonymously } from "firebase/auth";
 import { saveFortune } from "@/services/firestore";
 import Slider from "@react-native-community/slider";
 import { useRouter } from "expo-router";
-import LottieView from "lottie-react-native";
+import LottieView from "@/components/lottie-view";
 import { useState } from "react";
 import {
   Alert,
