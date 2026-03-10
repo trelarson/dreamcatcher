@@ -1,5 +1,5 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Alert,
   Pressable,
@@ -8,13 +8,32 @@ import {
   Text,
   View,
 } from "react-native";
+import type { PurchasesPackage } from "react-native-purchases";
 
-import { purchaseAnnualPlan, restorePurchases } from "@/services/purchases";
+import {
+  fetchAnnualPackage,
+  purchaseAnnualPlan,
+  restorePurchases,
+} from "@/services/purchases";
 
 export default function PaywallScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const [loading, setLoading] = useState(false);
+  const [offeringsLoading, setOfferingsLoading] = useState(true);
+  const [annualPackage, setAnnualPackage] = useState<PurchasesPackage | null>(
+    null,
+  );
+
+  // Fetch the real package info (including localized price) when screen opens
+  useEffect(() => {
+    fetchAnnualPackage()
+      .then((pkg) => setAnnualPackage(pkg))
+      .finally(() => setOfferingsLoading(false));
+  }, []);
+
+  const priceString = annualPackage?.product?.priceString ?? "$0.99";
+  const productAvailable = !offeringsLoading && annualPackage !== null;
 
   const onPurchaseSuccess = () => {
     if (params.title) {
@@ -25,9 +44,16 @@ export default function PaywallScreen() {
   };
 
   const handlePurchase = async () => {
+    if (!productAvailable) {
+      Alert.alert(
+        "Not Available",
+        "The subscription product could not be loaded. Please check your internet connection and try again.",
+      );
+      return;
+    }
     setLoading(true);
     try {
-      const granted = await purchaseAnnualPlan();
+      const granted = await purchaseAnnualPlan(annualPackage!);
       if (granted) {
         Alert.alert(
           "⚙️ The Vault Opens!",
@@ -65,6 +91,8 @@ export default function PaywallScreen() {
       setLoading(false);
     }
   };
+
+  const isPurchaseDisabled = loading || offeringsLoading || !productAvailable;
 
   return (
     <ScrollView
@@ -126,20 +154,38 @@ export default function PaywallScreen() {
       <Text style={styles.pricingLabel}>Early Access Pricing:</Text>
 
       <Pressable
-        style={[styles.pricingCard, styles.pricingCardHighlighted]}
+        style={[
+          styles.pricingCard,
+          styles.pricingCardHighlighted,
+          isPurchaseDisabled && styles.pricingCardDisabled,
+        ]}
         onPress={handlePurchase}
-        disabled={loading}
+        disabled={isPurchaseDisabled}
         accessibilityRole="button"
-        accessibilityLabel="Purchase Annual Plan for $0.99 per year"
+        accessibilityLabel={`Purchase Annual Plan for ${priceString} per year`}
       >
         <View style={styles.popularBadge}>
           <Text style={styles.popularBadgeText}>⭐ EARLY ACCESS</Text>
         </View>
         <Text style={styles.pricingPeriod}>Annual Plan</Text>
-        <Text style={styles.pricingPrice}>
-          $0.99<Text style={styles.pricingPeriodSmall}>/year</Text>
-        </Text>
-        <Text style={styles.pricingTotal}>Full Access • Cancel Anytime</Text>
+
+        {offeringsLoading ? (
+          <Text style={styles.pricingLoading}>Loading price...</Text>
+        ) : productAvailable ? (
+          <>
+            <Text style={styles.pricingPrice}>
+              {priceString}
+              <Text style={styles.pricingPeriodSmall}>/year</Text>
+            </Text>
+            <Text style={styles.pricingTotal}>
+              Full Access • Cancel Anytime
+            </Text>
+          </>
+        ) : (
+          <Text style={styles.pricingUnavailable}>
+            Currently Unavailable{"\n"}Please check your connection and try again.
+          </Text>
+        )}
       </Pressable>
 
       {/* Advisor Wisdom */}
@@ -248,6 +294,11 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
     elevation: 10,
   },
+
+  pricingCardDisabled: {
+    opacity: 0.7,
+  },
+
   featureItem: {
     flexDirection: "row",
     alignItems: "flex-start",
@@ -316,6 +367,20 @@ const styles = StyleSheet.create({
     fontFamily: "CrimsonText-Regular",
     color: "#6B4423",
     marginTop: 4,
+  },
+  pricingLoading: {
+    fontSize: 16,
+    fontFamily: "CrimsonText-Italic",
+    color: "#8B5A3C",
+    marginTop: 8,
+  },
+  pricingUnavailable: {
+    fontSize: 15,
+    fontFamily: "CrimsonText-Regular",
+    color: "#8B5A3C",
+    textAlign: "center",
+    marginTop: 8,
+    lineHeight: 22,
   },
   wisdomCard: {
     backgroundColor: "rgba(253, 246, 227, 0.1)",
