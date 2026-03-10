@@ -1,4 +1,4 @@
-import Purchases, { LOG_LEVEL } from "react-native-purchases";
+import Purchases, { LOG_LEVEL, PurchasesPackage } from "react-native-purchases";
 
 // The entitlement identifier configured in the RevenueCat dashboard
 export const ENTITLEMENT_ID = "premium";
@@ -48,14 +48,39 @@ export async function checkEntitlement(): Promise<boolean> {
   }
 }
 
-export async function purchaseAnnualPlan(): Promise<boolean> {
+/**
+ * Fetch the annual package from the current RevenueCat offering.
+ * Returns null if no offering or annual package is configured.
+ */
+export async function fetchAnnualPackage(): Promise<PurchasesPackage | null> {
   try {
     const offerings = await Purchases.getOfferings();
-    const annual = offerings.current?.annual;
-    if (!annual) {
+    // Try the built-in annual shorthand first, then fall back to searching
+    // all available packages for one with an annual identifier.
+    if (offerings.current?.annual) {
+      return offerings.current.annual;
+    }
+    const annual = offerings.current?.availablePackages.find(
+      (pkg) =>
+        pkg.packageType === "ANNUAL" ||
+        pkg.identifier.toLowerCase().includes("annual"),
+    );
+    return annual ?? null;
+  } catch (error) {
+    console.error("Failed to fetch offerings:", error);
+    return null;
+  }
+}
+
+export async function purchaseAnnualPlan(
+  pkg?: PurchasesPackage,
+): Promise<boolean> {
+  try {
+    const packageToBuy = pkg ?? (await fetchAnnualPackage());
+    if (!packageToBuy) {
       throw new Error("Annual package not found in RevenueCat offerings.");
     }
-    const { customerInfo } = await Purchases.purchasePackage(annual);
+    const { customerInfo } = await Purchases.purchasePackage(packageToBuy);
     return customerInfo.entitlements.active[ENTITLEMENT_ID] !== undefined;
   } catch (error: any) {
     // User cancelled — not an error worth surfacing
