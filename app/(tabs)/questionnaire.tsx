@@ -223,11 +223,19 @@ Generate the three career paths now.`;
       const parsed = parseFortune(response);
       setParsedFortune(parsed);
       setCurrentStep(6);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Fortune generation error:", error);
+      // Build a human-readable message so we can diagnose what went wrong
+      let detail = "Unknown error";
+      if (error?.code) {
+        detail = `Code: ${error.code}`;
+        if (error.message) detail += `\n${error.message}`;
+      } else if (error?.message) {
+        detail = error.message;
+      }
       Alert.alert(
         "⚙️ The Gears Have Jammed",
-        "The oracle's mechanisms encountered a hiccup. Please try consulting the brass machine again.",
+        `The oracle's mechanisms encountered a hiccup.\n\n${detail}\n\nPlease try again.`,
         [
           { text: "Cancel", style: "cancel" },
           { text: "Try Again", onPress: generateFortune },
@@ -602,17 +610,14 @@ Generate the three career paths now.`;
                 <Pressable
                   style={styles.choosePathButton}
                   onPress={() => {
-                    const pathParams = {
-                      title: path.title,
-                      why: path.why,
-                      steps: path.steps.join("|||"),
-                      timeline: path.timeline,
-                    };
-
-                    // Go directly to choice screen for testing
                     router.push({
-                      pathname: "/career-path-choice",
-                      params: pathParams,
+                      pathname: "/action-plan",
+                      params: {
+                        title: path.title,
+                        why: path.why,
+                        steps: path.steps.join("|||"),
+                        timeline: path.timeline,
+                      },
                     });
                   }}
                   accessibilityRole="button"

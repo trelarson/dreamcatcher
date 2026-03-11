@@ -5,9 +5,10 @@ import {
   saveActionPlan,
   updateActionPlan,
 } from "@/services/firestore";
+import { usePremium } from "@/hooks/usePremium";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import LottieView from "lottie-react-native";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Alert,
   Linking,
@@ -44,6 +45,9 @@ interface Milestone {
 export default function ActionPlanScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
+  const { isPremium, loading: premiumLoading } = usePremium();
+  // Guard so the effect only fires once after premium status is known
+  const initiated = useRef(false);
 
   const [loading, setLoading] = useState(true);
   const [milestones, setMilestones] = useState<Milestone[]>([]);
@@ -52,12 +56,29 @@ export default function ActionPlanScreen() {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
+    // Loading a previously saved plan — no premium check needed
     if (params.planId) {
-      loadSavedPlan(params.planId as string);
-    } else {
-      generateActionPlan();
+      if (!initiated.current) {
+        initiated.current = true;
+        loadSavedPlan(params.planId as string);
+      }
+      return;
     }
-  }, []);
+
+    // For new plan generation, wait until we know the premium status
+    if (premiumLoading) return;
+    if (initiated.current) return;
+    initiated.current = true;
+
+    if (!isPremium) {
+      // Not a subscriber — send to paywall. After purchase paywall will
+      // router.replace back here with the same params so we generate then.
+      router.replace({ pathname: "/paywall", params });
+      return;
+    }
+
+    generateActionPlan();
+  }, [isPremium, premiumLoading]);
 
   const loadSavedPlan = async (id: string) => {
     setLoading(true);
