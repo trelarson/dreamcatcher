@@ -53,23 +53,47 @@ export async function checkEntitlement(): Promise<boolean> {
  * Returns null if no offering or annual package is configured.
  */
 export async function fetchAnnualPackage(): Promise<PurchasesPackage | null> {
-  try {
-    const offerings = await Purchases.getOfferings();
-    // Try the built-in annual shorthand first, then fall back to searching
-    // all available packages for one with an annual identifier.
-    if (offerings.current?.annual) {
-      return offerings.current.annual;
-    }
-    const annual = offerings.current?.availablePackages.find(
-      (pkg) =>
-        pkg.packageType === "ANNUAL" ||
-        pkg.identifier.toLowerCase().includes("annual"),
+  const offerings = await Purchases.getOfferings();
+  const current = offerings.current;
+
+  if (!current) {
+    console.warn(
+      "RevenueCat: no current offering. Available offerings:",
+      Object.keys(offerings.all),
     );
-    return annual ?? null;
-  } catch (error) {
-    console.error("Failed to fetch offerings:", error);
     return null;
   }
+
+  console.log(
+    "RevenueCat offering:",
+    current.identifier,
+    "packages:",
+    current.availablePackages.map((p) => `${p.identifier}(${p.packageType})`),
+  );
+
+  // 1. Built-in annual shorthand (packageType === "ANNUAL")
+  if (current.annual) return current.annual;
+
+  // 2. Search by package type or identifier substring
+  const byType = current.availablePackages.find(
+    (pkg) =>
+      pkg.packageType === "ANNUAL" ||
+      pkg.identifier.toLowerCase().includes("annual"),
+  );
+  if (byType) return byType;
+
+  // 3. Final fallback: return the first package in the offering.
+  //    Handles "Custom" package types and any naming convention.
+  if (current.availablePackages.length > 0) {
+    console.warn(
+      "RevenueCat: no annual package matched by type; using first available:",
+      current.availablePackages[0].identifier,
+    );
+    return current.availablePackages[0];
+  }
+
+  console.warn("RevenueCat: current offering has no packages at all.");
+  return null;
 }
 
 export async function purchaseAnnualPlan(

@@ -25,11 +25,17 @@ export default function PaywallScreen() {
     null,
   );
 
-  // Fetch the real package info (including localized price) when screen opens
-  useEffect(() => {
+  const loadPackage = () => {
+    setOfferingsLoading(true);
     fetchAnnualPackage()
       .then((pkg) => setAnnualPackage(pkg))
+      .catch(() => setAnnualPackage(null))
       .finally(() => setOfferingsLoading(false));
+  };
+
+  // Fetch the real package info (including localized price) when screen opens
+  useEffect(() => {
+    loadPackage();
   }, []);
 
   const priceString = annualPackage?.product?.priceString ?? "$0.99";
@@ -182,9 +188,19 @@ export default function PaywallScreen() {
             </Text>
           </>
         ) : (
-          <Text style={styles.pricingUnavailable}>
-            Currently Unavailable{"\n"}Please check your connection and try again.
-          </Text>
+          <>
+            <Text style={styles.pricingUnavailable}>
+              Currently Unavailable{"\n"}Could not load subscription from the
+              App Store.
+            </Text>
+            <Pressable
+              onPress={loadPackage}
+              accessibilityRole="button"
+              accessibilityLabel="Retry loading price"
+            >
+              <Text style={styles.retryText}>Tap to retry</Text>
+            </Pressable>
+          </>
         )}
       </Pressable>
 
@@ -381,6 +397,14 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginTop: 8,
     lineHeight: 22,
+  },
+  retryText: {
+    fontSize: 14,
+    fontFamily: "CrimsonText-Regular",
+    color: "#1B4D5C",
+    textAlign: "center",
+    textDecorationLine: "underline",
+    marginTop: 8,
   },
   wisdomCard: {
     backgroundColor: "rgba(253, 246, 227, 0.1)",
