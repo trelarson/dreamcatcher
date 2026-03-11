@@ -11,7 +11,7 @@ interface OracleRequest {
   maxTokens?: number;
 }
 
-export const askOracle = onCall({ secrets: [anthropicApiKey], timeoutSeconds: 120 }, async (request) => {
+export const askOracle = onCall({ secrets: [anthropicApiKey], timeoutSeconds: 180 }, async (request) => {
   // Require Firebase auth (email/password or anonymous — both are accepted)
   if (!request.auth) {
     throw new HttpsError(
