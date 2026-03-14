@@ -93,7 +93,7 @@ export default function QuestionnaireScreen() {
 
     // Extract paths
     const pathPattern =
-      /PATH (\d+):\s*(.*?)\s*WHY:\s*([\s\S]*?)\s*STEPS:\s*([\s\S]*?)\s*TIMELINE:\s*(.*?)\s*INCOME:\s*(.*?)\s*EYEBROW_FACTOR:\s*(.*?)(?=\s*(?:PATH \d+:|CLOSING:|$))/gi;
+      /PATH (\d+):\s*(.*?)\s*WHY:\s*([\s\S]*?)\s*STEPS:\s*([\s\S]*?)\s*TIMELINE:\s*(.*?)\s*INCOME:\s*(.*?)\s*REAL_JOBS:\s*(.*?)\s*TOP_SKILL:\s*(.*?)\s*EYEBROW_FACTOR:\s*(.*?)(?=\s*(?:PATH \d+:|CLOSING:|$))/gi;
 
     let match;
     while ((match = pathPattern.exec(fortuneText)) !== null) {
@@ -102,7 +102,13 @@ export default function QuestionnaireScreen() {
       const stepsText = match[4].trim();
       const timeline = match[5].trim();
       const income = match[6].trim();
-      const eyebrowFactor = match[7].trim();
+      const realJobs = match[7]
+        .trim()
+        .split(",")
+        .map((j) => j.trim())
+        .filter((j) => j.length > 0);
+      const topSkill = match[8].trim();
+      const eyebrowFactor = match[9].trim();
 
       const steps = stepsText
         .split(/\n/)
@@ -117,6 +123,8 @@ export default function QuestionnaireScreen() {
         steps,
         timeline,
         income,
+        realJobs,
+        topSkill,
         eyebrowFactor,
       });
     }
@@ -164,33 +172,39 @@ GREETING:
 [2 sentences about their profile]
 
 PATH 1: [Job title here]
-WHY: [2 sentences]
+WHY: [2 sentences explaining why this fits them specifically]
 STEPS:
-1. [Action with timeframe]
-2. [Action with timeframe]
-3. [Action with timeframe]
-TIMELINE: [Overall time]
+1. [Concrete action with timeframe, e.g. "Week 1-2: ..."]
+2. [Concrete action with timeframe]
+3. [Concrete action with timeframe]
+TIMELINE: [Overall time to first income]
 INCOME: Year 1: $X, Year 2: $Y, Year 3+: $Z
+REAL_JOBS: [Specific job title], [Specific job title], [Specific job title]
+TOP_SKILL: [Single most important skill to develop first]
 EYEBROW_FACTOR: Low
 
 PATH 2: [Job title here]
-WHY: [2 sentences]
+WHY: [2 sentences explaining why this fits them specifically]
 STEPS:
-1. [Action with timeframe]
-2. [Action with timeframe]
-3. [Action with timeframe]
-TIMELINE: [Overall time]
+1. [Concrete action with timeframe]
+2. [Concrete action with timeframe]
+3. [Concrete action with timeframe]
+TIMELINE: [Overall time to first income]
 INCOME: Year 1: $X, Year 2: $Y, Year 3+: $Z
+REAL_JOBS: [Specific job title], [Specific job title], [Specific job title]
+TOP_SKILL: [Single most important skill to develop first]
 EYEBROW_FACTOR: Medium
 
 PATH 3: [Job title here]
-WHY: [2 sentences]
+WHY: [2 sentences explaining why this fits them specifically]
 STEPS:
-1. [Action with timeframe]
-2. [Action with timeframe]
-3. [Action with timeframe]
-TIMELINE: [Overall time]
+1. [Concrete action with timeframe]
+2. [Concrete action with timeframe]
+3. [Concrete action with timeframe]
+TIMELINE: [Overall time to first income]
 INCOME: Year 1: $X, Year 2: $Y, Year 3+: $Z
+REAL_JOBS: [Specific job title], [Specific job title], [Specific job title]
+TOP_SKILL: [Single most important skill to develop first]
 EYEBROW_FACTOR: High
 
 CLOSING:
@@ -210,7 +224,7 @@ Generate the three career paths now.`;
       const response = await askTheAdvisor(userData, {
         useHaiku: false, // Keep Sonnet for creative fortune generation
         systemPrompt: systemInstructions,
-        maxTokens: 2048,
+        maxTokens: 3000,
       });
 
       setFortune(response);
@@ -491,6 +505,23 @@ Generate the three career paths now.`;
                 </View>
 
                 <Text style={styles.pathTitle}>{path.title}</Text>
+
+                {path.realJobs && path.realJobs.length > 0 && (
+                  <View style={styles.realJobsContainer}>
+                    {path.realJobs.map((job: string, jobIndex: number) => (
+                      <View key={jobIndex} style={styles.realJobPill}>
+                        <Text style={styles.realJobPillText}>{job}</Text>
+                      </View>
+                    ))}
+                  </View>
+                )}
+
+                {path.topSkill ? (
+                  <View style={styles.topSkillCallout}>
+                    <Text style={styles.topSkillLabel}>⚙️ Master This First:</Text>
+                    <Text style={styles.topSkillText}>{path.topSkill}</Text>
+                  </View>
+                ) : null}
 
                 <View style={styles.pathSection}>
                   <Text style={styles.pathSectionTitle}>Why This Works:</Text>
@@ -1107,7 +1138,49 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: "bold",
     color: "#1B4D5C",
-    marginBottom: 15,
+    marginBottom: 10,
+  },
+  realJobsContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 6,
+    marginBottom: 12,
+  },
+  realJobPill: {
+    backgroundColor: "#1B4D5C",
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "#D4AF37",
+  },
+  realJobPillText: {
+    fontSize: 12,
+    color: "#D4AF37",
+    fontFamily: "CrimsonText-Regular",
+  },
+  topSkillCallout: {
+    backgroundColor: "rgba(212, 175, 55, 0.12)",
+    borderLeftWidth: 3,
+    borderLeftColor: "#D4AF37",
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: 4,
+    marginBottom: 14,
+  },
+  topSkillLabel: {
+    fontSize: 11,
+    fontWeight: "bold",
+    color: "#8B5A3C",
+    textTransform: "uppercase",
+    marginBottom: 3,
+    fontFamily: "Cinzel-Bold",
+  },
+  topSkillText: {
+    fontSize: 15,
+    color: "#1B4D5C",
+    fontFamily: "CrimsonText-Regular",
+    fontWeight: "bold",
   },
   pathSection: {
     marginBottom: 15,
