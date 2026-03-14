@@ -135,14 +135,10 @@ export default function QuestionnaireScreen() {
       case 0:
         return true;
       case 1:
-        return lifeStage !== "";
-      case 2:
         return flowState.trim().length > 20;
-      case 3:
+      case 2:
         return problemCare.trim().length > 20;
-      case 4:
-        return successDefinition.trim().length > 20;
-      case 5:
+      case 3:
         return blockers.length > 0;
       default:
         return false;
@@ -204,10 +200,8 @@ USE THE EXACT FORMAT ABOVE. Start with "GREETING:" - no other text before it.`;
 
       const userData = `===USER DATA===
 Conformity: ${Math.round(conformityScale)}/100 (${getScaleLabel(conformityScale)})
-Stage: ${lifeStage}
 Flow: "${flowState}"
 Problem: "${problemCare}"
-Success: "${successDefinition}"
 Blockers: ${blockers.join(", ")}
 
 Generate the three career paths now.`;
@@ -222,7 +216,7 @@ Generate the three career paths now.`;
       setFortune(response);
       const parsed = parseFortune(response);
       setParsedFortune(parsed);
-      setCurrentStep(6);
+      setCurrentStep(4);
     } catch (error: any) {
       console.error("Fortune generation error:", error);
       // Build a human-readable message so we can diagnose what went wrong
@@ -333,58 +327,8 @@ Generate the three career paths now.`;
       );
     }
 
-    // STEP 1: Life Stage
+    // STEP 1: Flow State
     if (currentStep === 1) {
-      return (
-        <View>
-          <Text style={styles.title}>Your Current Journey</Text>
-          <Text style={styles.question}>Where are you right now?</Text>
-
-          <View style={styles.optionsContainer}>
-            {[
-              { value: "student", label: "🎓 Student / Recent grad" },
-              { value: "early-career", label: "💼 Early career (0-3 years)" },
-              { value: "career-changer", label: "🔄 Career changer" },
-              {
-                value: "figuring-out",
-                label: "🤔 Taking a break / Figuring it out",
-              },
-            ].map((option) => (
-              <Pressable
-                key={option.value}
-                style={[
-                  styles.optionButton,
-                  lifeStage === option.value && styles.optionButtonSelected,
-                ]}
-                onPress={() => setLifeStage(option.value as LifeStage)}
-                accessibilityRole="radio"
-                accessibilityLabel={option.label}
-                accessibilityState={{ selected: lifeStage === option.value }}
-              >
-                <Text
-                  style={[
-                    styles.optionText,
-                    lifeStage === option.value && styles.optionTextSelected,
-                  ]}
-                >
-                  {option.label}
-                </Text>
-              </Pressable>
-            ))}
-          </View>
-
-          <View style={styles.contextBox}>
-            <Text style={styles.contextText}>
-              The oracle needs to understand your starting point.{"\n"}
-              No judgment - just context.
-            </Text>
-          </View>
-        </View>
-      );
-    }
-
-    // STEP 2: Flow State
-    if (currentStep === 2) {
       return (
         <View>
           <Text style={styles.title}>What Energizes You?</Text>
@@ -416,8 +360,8 @@ Generate the three career paths now.`;
       );
     }
 
-    // STEP 3: Problem They Care About
-    if (currentStep === 3) {
+    // STEP 2: Problem They Care About
+    if (currentStep === 2) {
       return (
         <View>
           <Text style={styles.title}>What Bothers You?</Text>
@@ -447,41 +391,8 @@ Generate the three career paths now.`;
       );
     }
 
-    // STEP 4: Success Definition
-    if (currentStep === 4) {
-      return (
-        <View>
-          <Text style={styles.title}>What Does Success Mean?</Text>
-          <Text style={styles.question}>
-            In 5 years, what would make you feel like you made the right choice?
-          </Text>
-          <Text style={styles.subquestion}>
-            (Be honest - money? Freedom? Impact? Recognition?)
-          </Text>
-
-          <TextInput
-            style={styles.textArea}
-            multiline
-            numberOfLines={8}
-            value={successDefinition}
-            onChangeText={setSuccessDefinition}
-            placeholder="Success to me looks like..."
-            placeholderTextColor="#8B5A3C"
-            textAlignVertical="top"
-          />
-
-          <View style={styles.contextBox}>
-            <Text style={styles.contextText}>
-              Your path should lead to YOUR success,{"\n"}
-              not society&apos;s version of it.
-            </Text>
-          </View>
-        </View>
-      );
-    }
-
-    // STEP 5: Blockers
-    if (currentStep === 5) {
+    // STEP 3: Blockers
+    if (currentStep === 3) {
       return (
         <View>
           <Text style={styles.title}>What&apos;s Holding You Back?</Text>
@@ -523,8 +434,8 @@ Generate the three career paths now.`;
       );
     }
 
-    // STEP 6: Results
-    if (currentStep === 6 && fortune) {
+    // STEP 4: Results
+    if (currentStep === 4 && fortune) {
       const hasParsedPaths =
         parsedFortune && parsedFortune.paths && parsedFortune.paths.length > 0;
 
@@ -805,15 +716,15 @@ Generate the three career paths now.`;
     >
       <View style={styles.progressContainer}>
         <Text style={styles.progressText}>
-          {currentStep < 6
-            ? `Question ${currentStep + 1} of 6`
+          {currentStep < 4
+            ? `Question ${currentStep + 1} of 4`
             : "Your Path"}
         </Text>
         <View style={styles.progressBar}>
           <View
             style={[
               styles.progressFill,
-              { width: `${((currentStep + 1) / 6) * 100}%` },
+              { width: `${((currentStep + 1) / 4) * 100}%` },
             ]}
           />
         </View>
@@ -821,7 +732,7 @@ Generate the three career paths now.`;
 
       {renderStep()}
 
-      {currentStep < 6 && (
+      {currentStep < 4 && (
         <View style={styles.navigationButtons}>
           {currentStep > 0 && (
             <Pressable
@@ -837,7 +748,7 @@ Generate the three career paths now.`;
           <Pressable
             style={[styles.button, !canProceed() && styles.buttonDisabled]}
             onPress={() => {
-              if (currentStep === 5) {
+              if (currentStep === 3) {
                 generateFortune();
               } else {
                 setCurrentStep(currentStep + 1);
@@ -845,10 +756,10 @@ Generate the three career paths now.`;
             }}
             disabled={!canProceed()}
             accessibilityRole="button"
-            accessibilityLabel={currentStep === 5 ? "Reveal My Fortune" : "Next question"}
+            accessibilityLabel={currentStep === 3 ? "Reveal My Fortune" : "Next question"}
           >
             <Text style={styles.buttonText}>
-              {currentStep === 5 ? "Reveal My Fortune" : "Next →"}
+              {currentStep === 3 ? "Reveal My Fortune" : "Next →"}
             </Text>
           </Pressable>
         </View>
