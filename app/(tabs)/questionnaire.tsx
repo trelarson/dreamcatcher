@@ -541,6 +541,7 @@ The user wants to reverse engineer from their 10-year vision to today. Generate 
                         why: path.why,
                         steps: path.steps.join("|||"),
                         timeline: path.timeline,
+                        tenYearVision,
                       },
                     });
                   }}

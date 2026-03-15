@@ -39,6 +39,8 @@ interface Milestone {
   id: string;
   title: string;
   timeline: string;
+  visionConnection?: string;
+  weekByWeek?: string[];
   tasks: Task[];
 }
 
@@ -111,14 +113,20 @@ export default function ActionPlanScreen() {
       setPathTitle(title);
 
       // Split prompt into cacheable system instructions and user data
-      const systemInstructions = `You are the Dreamwright oracle creating a detailed, actionable plan.
+      const systemInstructions = `You are the Dreamwright oracle creating a reverse-engineered action plan. Work backwards from the user's 10-year vision to build a concrete week-by-week path to get there.
 
 Create a detailed action plan with 5-7 milestones. For EACH task, include 2-3 REAL, SPECIFIC resources with clickable links.
 
 CRITICAL FORMAT - Follow this EXACTLY:
 
 ## MILESTONE 1: [Clear milestone title]
-TIMELINE: [Timeframe like "Months 1-2" or "Weeks 1-4"]
+TIMELINE: [Timeframe like "Month 1" or "Weeks 1-4"]
+VISION_CONNECTION: [One sentence: how completing this milestone moves them toward their specific 10-year vision]
+WEEK_BY_WEEK:
+- Week 1: [Concrete focus for this week]
+- Week 2: [Concrete focus for this week]
+- Week 3: [Concrete focus for this week]
+- Week 4: [Concrete focus for this week]
 TASK 1: [Specific, actionable task description]
 RESOURCES:
 - TYPE: course | TITLE: "Actual Course Name" | URL: https://actual-url.com | DESC: Brief helpful description | TIME: X hours | COST: free
@@ -130,6 +138,12 @@ RESOURCES:
 
 ## MILESTONE 2: [Second milestone title]
 TIMELINE: [Timeframe]
+VISION_CONNECTION: [One sentence connecting to their 10-year vision]
+WEEK_BY_WEEK:
+- Week 1: [Focus]
+- Week 2: [Focus]
+- Week 3: [Focus]
+- Week 4: [Focus]
 TASK 1: [Task description]
 RESOURCES:
 - TYPE: course | TITLE: "Course Name" | URL: https://coursera.org/course | DESC: What you'll learn | TIME: 20 hours | COST: paid
@@ -155,15 +169,20 @@ CRITICAL RULES:
 8. Include TIME estimates when relevant
 9. Keep DESC concise (one sentence)
 10. Use ## before MILESTONE for proper formatting
+11. WEEK_BY_WEEK must come before TASK lines in every milestone
+12. VISION_CONNECTION must be a single line directly after TIMELINE
 
 Make tasks concrete, actionable, and progressively building toward the goal.`;
 
-      const userData = `PATH CHOSEN: ${title}
+      const tenYearVision = params.tenYearVision as string | undefined;
+
+      const userData = `10-YEAR VISION: "${tenYearVision || "Not specified"}"
+PATH CHOSEN: ${title}
 WHY IT FITS: ${why}
 INITIAL STEPS: ${steps}
 TIMELINE: ${timeline}
 
-Generate the complete plan with 5-7 milestones now.`;
+Reverse-engineer from the 10-year vision above. Build the plan backwards so each milestone is a concrete step toward that exact vision. Generate the complete plan with 5-7 milestones now.`;
 
       const response = await askTheOracle(userData, {
         useHaiku: true,
@@ -214,6 +233,25 @@ Generate the complete plan with 5-7 milestones now.`;
       const milestoneTitle = titleMatch[1].trim();
       const timeline = timelineMatch[1].trim();
 
+      // Extract vision connection
+      const visionConnectionMatch = block.match(
+        /VISION_CONNECTION:\s*(.+?)(?:\n|$)/,
+      );
+      const visionConnection = visionConnectionMatch
+        ? visionConnectionMatch[1].trim()
+        : undefined;
+
+      // Extract week-by-week items
+      const weekByWeekMatch = block.match(
+        /WEEK_BY_WEEK:\s*([\s\S]*?)(?=TASK \d+:|## MILESTONE|$)/,
+      );
+      const weekByWeek = weekByWeekMatch
+        ? weekByWeekMatch[1]
+            .split("\n")
+            .map((line) => line.replace(/^-\s*/, "").trim())
+            .filter((line) => line.length > 0)
+        : undefined;
+
       // Extract tasks (looking for **TASK X:** or TASK X:)
       const tasks: Task[] = [];
       const taskRegex =
@@ -263,6 +301,8 @@ Generate the complete plan with 5-7 milestones now.`;
           id: `milestone-${Date.now()}-${Math.random()}`,
           title: milestoneTitle,
           timeline,
+          visionConnection,
+          weekByWeek,
           tasks,
         });
       }
@@ -458,6 +498,31 @@ Generate the complete plan with 5-7 milestones now.`;
             <Text style={styles.milestoneTimeline}>
               ⏱️ {milestone.timeline}
             </Text>
+
+            {milestone.visionConnection && (
+              <View style={styles.visionConnectionBanner}>
+                <Text style={styles.visionConnectionLabel}>
+                  🔭 Toward Your Vision:
+                </Text>
+                <Text style={styles.visionConnectionText}>
+                  {milestone.visionConnection}
+                </Text>
+              </View>
+            )}
+
+            {milestone.weekByWeek && milestone.weekByWeek.length > 0 && (
+              <View style={styles.weekByWeekContainer}>
+                <Text style={styles.weekByWeekTitle}>
+                  📅 Week-by-Week Plan:
+                </Text>
+                {milestone.weekByWeek.map((week, weekIndex) => (
+                  <View key={weekIndex} style={styles.weekItem}>
+                    <Text style={styles.weekBullet}>▸</Text>
+                    <Text style={styles.weekText}>{week}</Text>
+                  </View>
+                ))}
+              </View>
+            )}
 
             <View style={styles.progressBarContainer}>
               <View
@@ -713,6 +778,62 @@ const styles = StyleSheet.create({
     fontFamily: "CrimsonText-Italic",
     color: "#8B5A3C",
     marginBottom: 10,
+  },
+  visionConnectionBanner: {
+    backgroundColor: "rgba(212, 175, 55, 0.12)",
+    borderLeftWidth: 3,
+    borderLeftColor: "#D4AF37",
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 4,
+    marginBottom: 10,
+  },
+  visionConnectionLabel: {
+    fontSize: 10,
+    fontWeight: "bold",
+    color: "#8B5A3C",
+    textTransform: "uppercase",
+    letterSpacing: 1,
+    marginBottom: 3,
+  },
+  visionConnectionText: {
+    fontSize: 14,
+    color: "#1B4D5C",
+    fontStyle: "italic",
+    lineHeight: 20,
+  },
+  weekByWeekContainer: {
+    backgroundColor: "rgba(27, 77, 92, 0.07)",
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: "#1B4D5C",
+  },
+  weekByWeekTitle: {
+    fontSize: 12,
+    fontWeight: "bold",
+    color: "#1B4D5C",
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+    marginBottom: 8,
+  },
+  weekItem: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    marginBottom: 5,
+  },
+  weekBullet: {
+    fontSize: 13,
+    color: "#2C6B7F",
+    marginRight: 6,
+    marginTop: 1,
+  },
+  weekText: {
+    fontSize: 14,
+    color: "#2C6B7F",
+    flex: 1,
+    lineHeight: 20,
   },
   tasksContainer: {
     marginTop: 15,
