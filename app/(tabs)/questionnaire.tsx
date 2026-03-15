@@ -559,6 +559,9 @@ The user wants to reverse engineer from their 10-year vision to today. Generate 
                         steps: path.steps.join("|||"),
                         timeline: path.timeline,
                         tenYearVision,
+                        flowState,
+                        problemCare,
+                        conformityScale: String(Math.round(conformityScale)),
                       },
                     });
                   }}

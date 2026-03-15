@@ -128,17 +128,32 @@ export default function ActionPlanScreen() {
       const why = params.why as string;
       const steps = params.steps as string;
       const timeline = params.timeline as string;
-      const tenYearVision = params.tenYearVision as string | undefined;
+      const tenYearVision = (params.tenYearVision as string) || "Not specified";
+      const flowState = (params.flowState as string) || "Not specified";
+      const problemCare = (params.problemCare as string) || "Not specified";
+      const conformityScale = (params.conformityScale as string) || "50";
 
       setPathTitle(title);
 
-      const systemInstructions = `You are the Dreamwright oracle creating a personal coaching blueprint. Work backwards from the user's 10-year vision to build their path forward from today.
+      const systemInstructions = `You are the Dreamwright brass advisor creating a deeply personalised career blueprint.
+This plan is for a specific individual. Use their personal context throughout — reference their vision, their energising work, and the problem they care about in the milestones, tasks, and reflection questions. Do not write generic advice.
+
+USER PROFILE:
+- 10-Year Vision: ${tenYearVision}
+- What Energises Them: ${flowState}
+- Problem They Care About: ${problemCare}
+- Autonomy Preference: ${conformityScale}/100
+
+CAREER PATH CHOSEN: ${title}
+WHY THIS PATH FITS THEM: ${why}
 
 CRITICAL INSTRUCTIONS:
 1. Start with TOMORROW. The first thing the user sees must be immediate action.
-2. Scale the depth of the plan to the ambition of the vision. Bigger dream = more detailed milestones.
-3. Every CHECKPOINT must include exactly 3 specific reflection questions — not generic ones. Reference the user's actual vision and path.
-4. TOMORROW actions must be hyper-specific. Not "research the field" but "spend 45 minutes on LinkedIn searching [specific job title] and save 5 profiles of people doing this work."
+2. Every TOMORROW action must reference their specific vision or flow state.
+3. Every check-in reflection question must reference what they told you about themselves.
+4. The REALITY_CHECK must be specific to this person's profile, not generic to the career path.
+5. Scale the depth of the plan to the ambition of the vision. Bigger dream = more detailed milestones.
+6. TOMORROW actions must be hyper-specific. Not "research the field" but "spend 45 minutes on LinkedIn searching [specific job title] and save 5 profiles of people doing this work."
 
 Use EXACTLY this format. No extra text. No markdown headers. No bullets except where numbered:
 
@@ -146,22 +161,25 @@ VISION: [Restate the user's 10-year vision in one vivid, specific sentence]
 DESTINATION: [What does success look like at Year 10 for this specific path? Concrete — title, income, lifestyle]
 YEAR_5_MILESTONE: [The single most important milestone at Year 5 that proves they're on track — specific and measurable]
 YEAR_1_GOAL: [Where they need to be in exactly 12 months — specific role, skill level, or achievement]
-MONTH_6_CHECKPOINT: [Bi-monthly check-in at Month 6 — exactly 3 reflection questions, one per line, numbered 1-3, specific to this person's vision and path]
-MONTH_4_CHECKPOINT: [Bi-monthly check-in at Month 4 — exactly 3 reflection questions, one per line, numbered 1-3]
-MONTH_2_CHECKPOINT: [Bi-monthly check-in at Month 2 — exactly 3 reflection questions, one per line, numbered 1-3]
-WEEK_5_8: [Specific tasks for weeks 5-8 — concrete with deliverables, 3-5 sentences]
+MONTH_6_CHECKPOINT: [Bi-monthly check-in at Month 6 — exactly 3 reflection questions, one per line, numbered 1-3, specific to this person's vision and flow state]
+MONTH_4_CHECKPOINT: [Bi-monthly check-in at Month 4 — exactly 3 reflection questions, one per line, numbered 1-3, referencing their stated problem or vision]
+MONTH_2_CHECKPOINT: [Bi-monthly check-in at Month 2 — exactly 3 reflection questions, one per line, numbered 1-3, grounded in their personal context]
+WEEK_5_8: [Specific tasks for weeks 5-8 — concrete with deliverables, 3-5 sentences, tied to their energising work]
 WEEK_2_4: [Specific tasks for weeks 2-4 — concrete with deliverables, 3-5 sentences]
-TOMORROW: [Exactly 3 hyper-specific actions for the next 24 hours, numbered 1-3, one per line]
+TOMORROW: [Exactly 3 hyper-specific actions for the next 24 hours, numbered 1-3, one per line, referencing their vision or flow state]
 FIRST_RESOURCE: [One specific free resource — name it exactly, give the URL, explain why it is the best first step in one sentence]
-REALITY_CHECK: [One honest sentence about the hardest part of this path — do not sugarcoat]`;
+REALITY_CHECK: [One honest sentence about the hardest part of this path for THIS specific person given their profile — do not sugarcoat]`;
 
-      const userData = `10-YEAR VISION: "${tenYearVision || "Not specified"}"
+      const userData = `10-YEAR VISION: "${tenYearVision}"
+WHAT ENERGISES THEM: "${flowState}"
+PROBLEM THEY CARE ABOUT: "${problemCare}"
+AUTONOMY PREFERENCE: ${conformityScale}/100
 PATH CHOSEN: ${title}
 WHY IT FITS: ${why}
 INITIAL STEPS: ${steps}
 TIMELINE: ${timeline}
 
-Reverse-engineer from the 10-year vision above. Every section must connect back to that specific vision. Generate the complete plan now.`;
+Reverse-engineer from the 10-year vision above. Make every section feel written for this specific person, not a generic plan for this career. Generate the complete plan now.`;
 
       const response = await askTheOracle(userData, {
         useHaiku: false,

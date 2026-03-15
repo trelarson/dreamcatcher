@@ -178,6 +178,10 @@ export default function ProfileScreen() {
                           paths: JSON.stringify(fortune.parsedFortune.paths),
                           greeting: fortune.parsedFortune.greeting || "",
                           closing: fortune.parsedFortune.closing || "",
+                          tenYearVision: fortune.tenYearVision || "",
+                          flowState: fortune.flowState || "",
+                          problemCare: fortune.problemCare || "",
+                          conformityScale: String(fortune.conformityScale ?? ""),
                         },
                       });
                     } else {

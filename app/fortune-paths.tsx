@@ -42,6 +42,10 @@ export default function FortunePathsScreen() {
         steps: path.steps.join("|||"),
         timeline: path.timeline,
         fortuneId: (params.fortuneId as string) || "",
+        tenYearVision: (params.tenYearVision as string) || "",
+        flowState: (params.flowState as string) || "",
+        problemCare: (params.problemCare as string) || "",
+        conformityScale: (params.conformityScale as string) || "",
       };
 
       const hasPremium = await checkEntitlement();
@@ -59,6 +63,10 @@ export default function FortunePathsScreen() {
           steps: path.steps.join("|||"),
           timeline: path.timeline,
           fortuneId: (params.fortuneId as string) || "",
+          tenYearVision: (params.tenYearVision as string) || "",
+          flowState: (params.flowState as string) || "",
+          problemCare: (params.problemCare as string) || "",
+          conformityScale: (params.conformityScale as string) || "",
         },
       });
     }
