@@ -1,6 +1,6 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { checkEntitlement } from "@/services/purchases";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
 export default function FortunePathsScreen() {
   const router = useRouter();
@@ -152,6 +152,28 @@ export default function FortunePathsScreen() {
           <Text style={styles.closingText}>{closing}</Text>
         </View>
       )}
+
+      <Pressable
+        style={styles.startOverButton}
+        onPress={() => {
+          Alert.alert(
+            "Start Over?",
+            "The brass mechanisms will reset. Your current paths will be lost.",
+            [
+              { text: "Cancel", style: "cancel" },
+              {
+                text: "Start Over",
+                style: "destructive",
+                onPress: () => router.replace("/(tabs)/questionnaire"),
+              },
+            ],
+          );
+        }}
+        accessibilityRole="button"
+        accessibilityLabel="Start Over"
+      >
+        <Text style={styles.startOverText}>↺ Start Over</Text>
+      </Pressable>
     </ScrollView>
   );
 }
@@ -343,5 +365,18 @@ const styles = StyleSheet.create({
     color: "#FDF6E3",
     textAlign: "center",
     lineHeight: 22,
+  },
+  startOverButton: {
+    marginTop: 20,
+    padding: 14,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#8B5A3C",
+    alignItems: "center",
+  },
+  startOverText: {
+    fontSize: 15,
+    fontFamily: "CrimsonText-Regular",
+    color: "#C0C0C0",
   },
 });

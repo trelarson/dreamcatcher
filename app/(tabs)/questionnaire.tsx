@@ -5,7 +5,7 @@ import { saveFortune } from "@/services/firestore";
 import Slider from "@react-native-community/slider";
 import { useRouter } from "expo-router";
 import LottieView from "lottie-react-native";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Alert,
   KeyboardAvoidingView,
@@ -33,6 +33,23 @@ export default function QuestionnaireScreen() {
   const [parsedFortune, setParsedFortune] = useState<any>(null);
   const [saving, setSaving] = useState(false);
   const [continueAnonymously, setContinueAnonymously] = useState(false);
+  const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
+
+  const loadingMessages = [
+    "Mapping your 10-year vision...",
+    "Reverse engineering your path...",
+    "Forging your blueprint...",
+    "Almost ready...",
+  ];
+
+  useEffect(() => {
+    if (!loading) return;
+    setLoadingMessageIndex(0);
+    const interval = setInterval(() => {
+      setLoadingMessageIndex((i) => (i + 1) % loadingMessages.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [loading]);
 
   // Answer storage
   const [conformityScale, setConformityScale] = useState(50);
@@ -708,11 +725,7 @@ The user wants to reverse engineer from their 10-year vision to today. Generate 
           style={styles.gearAnimation}
         />
         <Text style={styles.loadingText}>
-          The brass gears are turning...{"\n"}
-          The oracle consults ancient mechanisms...{"\n"}
-          Your essence is being analyzed...{"\n"}
-          {"\n"}
-          Your fortune is taking shape...
+          {loadingMessages[loadingMessageIndex]}
         </Text>
       </View>
     );

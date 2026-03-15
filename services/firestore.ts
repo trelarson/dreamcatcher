@@ -20,7 +20,7 @@ export interface SavedFortune {
   flowState: string;
   problemCare: string;
   successDefinition: string;
-  blockers: string[];
+  tenYearVision: string;
   fortuneText: string;
   parsedFortune?: any;
   createdAt: Timestamp;
