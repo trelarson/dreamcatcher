@@ -40,7 +40,7 @@ export default function QuestionnaireScreen() {
   const [flowState, setFlowState] = useState("");
   const [problemCare, setProblemCare] = useState("");
   const [successDefinition, setSuccessDefinition] = useState("");
-  const [blockers, setBlockers] = useState<string[]>([]);
+  const [tenYearVision, setTenYearVision] = useState("");
 
   const getScaleLabel = (value: number) => {
     if (value < 20) return "Stability & Structure";
@@ -57,23 +57,6 @@ export default function QuestionnaireScreen() {
     if (value < 80)
       return "Location independent • Unconventional • Self-directed";
     return "Complete autonomy • Adventure • Radical simplicity";
-  };
-
-  const blockerOptions = [
-    "I don't know what I'm good at",
-    "I need money ASAP",
-    "I'm afraid of choosing wrong",
-    "I don't have the right credentials",
-    "I don't know where to start",
-    "Nothing - just need direction",
-  ];
-
-  const toggleBlocker = (blocker: string) => {
-    if (blockers.includes(blocker)) {
-      setBlockers(blockers.filter((b) => b !== blocker));
-    } else {
-      setBlockers([...blockers, blocker]);
-    }
   };
 
   const parseFortune = (fortuneText: string) => {
@@ -147,7 +130,7 @@ export default function QuestionnaireScreen() {
       case 2:
         return problemCare.trim().length > 20;
       case 3:
-        return blockers.length > 0;
+        return tenYearVision.trim().length > 20;
       default:
         return false;
     }
@@ -169,10 +152,10 @@ export default function QuestionnaireScreen() {
 Copy this structure EXACTLY:
 
 GREETING:
-[2 sentences about their profile]
+[2 sentences acknowledging their 10-year vision and framing the 3 paths as reverse-engineered routes to reach it]
 
 PATH 1: [Job title here]
-WHY: [2 sentences explaining why this fits them specifically]
+WHY: [2 sentences connecting this path directly back to their 10-year vision — show how this path is the reverse-engineered route to get there]
 STEPS:
 1. [Concrete action with timeframe, e.g. "Week 1-2: ..."]
 2. [Concrete action with timeframe]
@@ -184,7 +167,7 @@ TOP_SKILL: [Single most important skill to develop first]
 EYEBROW_FACTOR: Low
 
 PATH 2: [Job title here]
-WHY: [2 sentences explaining why this fits them specifically]
+WHY: [2 sentences connecting this path directly back to their 10-year vision — show how this path is the reverse-engineered route to get there]
 STEPS:
 1. [Concrete action with timeframe]
 2. [Concrete action with timeframe]
@@ -196,7 +179,7 @@ TOP_SKILL: [Single most important skill to develop first]
 EYEBROW_FACTOR: Medium
 
 PATH 3: [Job title here]
-WHY: [2 sentences explaining why this fits them specifically]
+WHY: [2 sentences connecting this path directly back to their 10-year vision — show how this path is the reverse-engineered route to get there]
 STEPS:
 1. [Concrete action with timeframe]
 2. [Concrete action with timeframe]
@@ -216,9 +199,9 @@ USE THE EXACT FORMAT ABOVE. Start with "GREETING:" - no other text before it.`;
 Conformity: ${Math.round(conformityScale)}/100 (${getScaleLabel(conformityScale)})
 Flow: "${flowState}"
 Problem: "${problemCare}"
-Blockers: ${blockers.join(", ")}
+10-Year Vision: "${tenYearVision}"
 
-Generate the three career paths now.`;
+The user wants to reverse engineer from their 10-year vision to today. Generate three career paths that work backwards from that vision.`;
 
       // Use Sonnet with cached system prompt for quality + cost savings
       const response = await askTheAdvisor(userData, {
@@ -271,7 +254,7 @@ Generate the three career paths now.`;
         flowState,
         problemCare,
         successDefinition,
-        blockers,
+        tenYearVision,
         fortuneText: fortune,
         parsedFortune,
       });
@@ -405,43 +388,33 @@ Generate the three career paths now.`;
       );
     }
 
-    // STEP 3: Blockers
+    // STEP 3: 10-Year Vision
     if (currentStep === 3) {
       return (
         <View>
-          <Text style={styles.title}>What&apos;s Holding You Back?</Text>
-          <Text style={styles.question}>Select all that apply:</Text>
+          <Text style={styles.title}>Your 10-Year Vision</Text>
+          <Text style={styles.question}>
+            Describe your ideal life in 10 years if everything goes right.
+          </Text>
+          <Text style={styles.subquestion}>
+            (Career, lifestyle, impact — paint the full picture. Be bold.)
+          </Text>
 
-          <View style={styles.optionsContainer}>
-            {blockerOptions.map((blocker) => (
-              <Pressable
-                key={blocker}
-                style={[
-                  styles.blockerButton,
-                  blockers.includes(blocker) && styles.blockerButtonSelected,
-                ]}
-                onPress={() => toggleBlocker(blocker)}
-                accessibilityRole="checkbox"
-                accessibilityLabel={blocker}
-                accessibilityState={{ checked: blockers.includes(blocker) }}
-              >
-                <Text
-                  style={[
-                    styles.blockerText,
-                    blockers.includes(blocker) && styles.blockerTextSelected,
-                  ]}
-                >
-                  {blockers.includes(blocker) ? "✓ " : ""}
-                  {blocker}
-                </Text>
-              </Pressable>
-            ))}
-          </View>
+          <TextInput
+            style={styles.textArea}
+            multiline
+            numberOfLines={8}
+            value={tenYearVision}
+            onChangeText={setTenYearVision}
+            placeholder="In 10 years, I am..."
+            placeholderTextColor="#8B5A3C"
+            textAlignVertical="top"
+          />
 
           <View style={styles.contextBox}>
             <Text style={styles.contextText}>
-              The oracle will account for these obstacles.{"\n"}
-              Honesty helps us find realistic paths.
+              The brass mechanisms work backwards from your dream.{"\n"}
+              The clearer your vision, the more precise your path.
             </Text>
           </View>
         </View>
@@ -480,6 +453,15 @@ Generate the three career paths now.`;
                 <View style={styles.cornerBottomRight}>
                   <Text style={styles.cornerText}>═╝</Text>
                 </View>
+
+                {tenYearVision.trim().length > 0 && (
+                  <View style={styles.visionBanner}>
+                    <Text style={styles.visionBannerLabel}>🔭 YOUR 10-YEAR VISION</Text>
+                    <Text style={styles.visionBannerText} numberOfLines={1}>
+                      &ldquo;{tenYearVision.trim().slice(0, 60)}{tenYearVision.trim().length > 60 ? "..." : ""}&rdquo;
+                    </Text>
+                  </View>
+                )}
 
                 <View style={styles.pathHeader}>
                   <Text style={styles.pathNumber}>Path {index + 1}</Text>
@@ -565,7 +547,7 @@ Generate the three career paths now.`;
                   accessibilityRole="button"
                   accessibilityLabel={`Choose path: ${path.title}`}
                 >
-                  <Text style={styles.choosePathText}>Choose This Path →</Text>
+                  <Text style={styles.choosePathText}>Reverse Engineer This Path →</Text>
                 </Pressable>
               </View>
             ))}
@@ -599,7 +581,7 @@ Generate the three career paths now.`;
                 setFlowState("");
                 setProblemCare("");
                 setSuccessDefinition("");
-                setBlockers([]);
+                setTenYearVision("");
               }}
               accessibilityRole="button"
               accessibilityLabel="Start New Discovery"
@@ -655,7 +637,7 @@ Generate the three career paths now.`;
                 setFlowState("");
                 setProblemCare("");
                 setSuccessDefinition("");
-                setBlockers([]);
+                setTenYearVision("");
               }}
               accessibilityRole="button"
               accessibilityLabel="Start New Discovery"
@@ -984,26 +966,6 @@ const styles = StyleSheet.create({
     borderColor: "#B8860B",
     color: "#1B4D5C",
   },
-  blockerButton: {
-    backgroundColor: "#2C6B7F",
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 8,
-    borderWidth: 2,
-    borderColor: "#8B5A3C",
-  },
-  blockerButtonSelected: {
-    backgroundColor: "#D4AF37",
-    borderColor: "#B8860B",
-  },
-  blockerText: {
-    fontSize: 15,
-    color: "#FDF6E3",
-  },
-  blockerTextSelected: {
-    color: "#1B4D5C",
-    fontWeight: "bold",
-  },
   navigationButtons: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -1181,6 +1143,31 @@ const styles = StyleSheet.create({
     color: "#1B4D5C",
     fontFamily: "CrimsonText-Regular",
     fontWeight: "bold",
+  },
+  visionBanner: {
+    backgroundColor: "#1B4D5C",
+    borderBottomWidth: 1,
+    borderBottomColor: "#D4AF37",
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    marginBottom: 14,
+    marginHorizontal: -16,
+    marginTop: -16,
+  },
+  visionBannerLabel: {
+    fontSize: 10,
+    fontWeight: "bold",
+    color: "#D4AF37",
+    textTransform: "uppercase",
+    letterSpacing: 1,
+    marginBottom: 2,
+    fontFamily: "Cinzel-Bold",
+  },
+  visionBannerText: {
+    fontSize: 13,
+    color: "#E6F4FE",
+    fontFamily: "CrimsonText-Regular",
+    fontStyle: "italic",
   },
   pathSection: {
     marginBottom: 15,
